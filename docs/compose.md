@@ -20,11 +20,12 @@ translated into Nix expressions.
 
 ## Configuration and secrets
 
-Secret values are not committed to the repository.
+Secret values are not committed to the repository in plaintext.
 
 Nextcloud and Immich use environment variables for database credentials.
-Example environment files are provided where useful; production secrets will
-be managed separately with sops-nix.
+Production secrets are managed with sops-nix. The encrypted secret data is
+stored in `secrets/homelab.yaml`, while NixOS generates the environment files
+consumed by the Compose services.
 
 ## Custom images
 
