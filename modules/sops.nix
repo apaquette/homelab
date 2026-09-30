@@ -17,6 +17,13 @@
     key = "beszel/agent_token";
   };
 
+  sops.secrets."smartd-ntfy-token" = {
+    key = "smartd/ntfy_token";
+  };
+
+  environment.etc."smartd-ntfy-token".source =
+    config.sops.secrets."smartd-ntfy-token".path;
+
   sops.templates."nextcloud.env" = {
     content = ''
       POSTGRES_PASSWORD=${config.sops.placeholder."nextcloud-postgres-password"}

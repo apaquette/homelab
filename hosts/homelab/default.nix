@@ -16,6 +16,10 @@
     ../../modules/sops.nix
     ../../modules/compose.nix
     ../../modules/compatibility.nix
+    ../../modules/scripts.nix
+    ../../modules/monitoring.nix
+    ../../modules/backups.nix
+    ../../modules/smartd.nix
   ];
 
   networking.hostName = "homelab";

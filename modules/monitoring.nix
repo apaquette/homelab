@@ -1,0 +1,123 @@
+{ ... }:
+
+{
+  systemd.services.homelab-container-health = {
+    description = "Check Docker container restart activity";
+
+    after = [
+      "docker.service"
+    ];
+
+    requires = [
+      "docker.service"
+    ];
+
+    serviceConfig = {
+      Type = "oneshot";
+
+      ExecStart = "/etc/homelab/scripts/homelab-container-health";
+    };
+  };
+
+  systemd.timers.homelab-container-health = {
+    description = "Periodic Docker container restart check";
+
+    wantedBy = [
+      "timers.target"
+    ];
+
+    timerConfig = {
+      OnBootSec = "10min";
+      OnUnitActiveSec = "15min";
+      Persistent = true;
+    };
+  };
+
+  systemd.services.homelab-disk-health = {
+    description = "Check homelab disk space and inode usage";
+
+    after = [
+      "local-fs.target"
+    ];
+
+    requires = [
+      "local-fs.target"
+    ];
+
+    serviceConfig = {
+      Type = "oneshot";
+
+      ExecStart = "/etc/homelab/scripts/homelab-disk-health";
+    };
+  };
+
+  systemd.timers.homelab-disk-health = {
+    description = "Periodic homelab disk health check";
+
+    wantedBy = [
+      "timers.target"
+    ];
+
+    timerConfig = {
+      OnBootSec = "10min";
+      OnUnitActiveSec = "15min";
+      Persistent = true;
+    };
+  };
+
+  systemd.services.homelab-storage-health = {
+    description = "Check homelab RAID and storage health";
+
+    after = [
+      "local-fs.target"
+    ];
+
+    requires = [
+      "local-fs.target"
+    ];
+
+    onFailure = [
+      "homelab-storage-notify@%p.service"
+    ];
+
+    serviceConfig = {
+      Type = "oneshot";
+
+      ExecStart = "/etc/homelab/scripts/homelab-storage-health";
+    };
+  };
+
+  systemd.timers.homelab-storage-health = {
+    description = "Periodic homelab storage health check";
+
+    wantedBy = [
+      "timers.target"
+    ];
+
+    timerConfig = {
+      OnBootSec = "5min";
+      OnUnitActiveSec = "15min";
+      Persistent = true;
+    };
+  };
+
+  systemd.services."homelab-backup-notify@" = {
+    description = "Notify ntfy about failed backup service %i";
+
+    serviceConfig = {
+      Type = "oneshot";
+
+      ExecStart = "/etc/homelab/scripts/homelab-backup-ntfy %i";
+    };
+  };
+
+  systemd.services."homelab-storage-notify@" = {
+    description = "Notify ntfy about failed storage health service %i";
+
+    serviceConfig = {
+      Type = "oneshot";
+
+      ExecStart = "/etc/homelab/scripts/homelab-storage-ntfy %i";
+    };
+  };
+}
