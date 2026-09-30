@@ -4,9 +4,6 @@ result
 result-*
 
 # Secrets
-secrets/*.yaml
-secrets/*.yml
-secrets/*.json
 secrets/*.env
 secrets/*.key
 secrets/*.pem

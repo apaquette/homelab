@@ -42,6 +42,8 @@
     isSystemUser = true;
     uid = 104;
     group = "qbittorrent";
+    home = "/var/lib/qBittorrent";
+    createHome = false;
     extraGroups = [ "apaquette" ];
   };
 

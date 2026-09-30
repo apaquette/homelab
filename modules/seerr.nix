@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   systemd.services.seerr = {
@@ -14,8 +14,10 @@
 
     serviceConfig = {
       Type = "simple";
+
       User = "seerr";
       Group = "seerr";
+
       WorkingDirectory = "/opt/seerr";
 
       Environment = [
@@ -23,13 +25,15 @@
         "CONFIG_DIRECTORY=/var/lib/seerr"
       ];
 
-      ExecStart = "/usr/bin/node /opt/seerr/dist/index.js";
+      ExecStart = "${pkgs.nodejs}/bin/node /opt/seerr/dist/index.js";
 
       Restart = "on-failure";
       RestartSec = 5;
       TimeoutStopSec = 30;
     };
 
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = [
+      "multi-user.target"
+    ];
   };
 }

@@ -13,6 +13,9 @@
     ../../modules/media-services.nix
     ../../modules/seerr.nix
     ../../modules/minecraft.nix
+    ../../modules/sops.nix
+    ../../modules/compose.nix
+    ../../modules/compatibility.nix
   ];
 
   networking.hostName = "homelab";
