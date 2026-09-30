@@ -1,0 +1,12 @@
+services:
+  uptime-kuma:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: uptime-kuma-local:2
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - ./data:/app/data

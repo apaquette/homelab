@@ -20,3 +20,5 @@ secrets/*.age
 
 # Generated/runtime data
 *.log
+# Local Compose configuration
+compose/**/.env
