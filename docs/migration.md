@@ -72,20 +72,18 @@ Production migration
 * [x] `nix flake check` validation
 * [x] NixOS system build validation
 * [x] GitHub Actions CI
+- [x] Compatibility support for prebuilt applications represented
+- [x] Cross-component configuration invariants
+- [x] Cross-component configuration invariant tests
 
-### Remaining work
+## Remaining work
 
-* [ ] Characterize Docker Compose services
-* [ ] Characterize compatibility configuration
-* [ ] Characterize script installation
-* [ ] Characterize remaining hardware and boot configuration
-* [ ] Add cross-component configuration invariants where useful
-* [ ] Add NixOS VM tests
-* [ ] Add hardware-specific validation
-* [ ] Document the production deployment procedure
-* [ ] Prepare production migration
-* [ ] Execute production migration
-* [ ] Perform post-migration smoke testing
+- [ ] Add NixOS VM tests
+- [ ] Add hardware-specific validation
+- [ ] Document the production deployment procedure
+- [ ] Prepare production migration
+- [ ] Execute production migration
+- [ ] Perform post-migration smoke testing
 
 ## Testing methodology
 
