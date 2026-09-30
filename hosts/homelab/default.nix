@@ -6,6 +6,7 @@
     ./users.nix
     ../../modules/networking.nix
     ../../modules/storage.nix
+    ../../modules/docker.nix
   ];
 
   networking.hostName = "homelab";
