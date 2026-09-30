@@ -1,0 +1,22 @@
+# Nix
+.direnv/
+result
+result-*
+
+# Secrets
+secrets/*.yaml
+secrets/*.yml
+secrets/*.json
+secrets/*.env
+secrets/*.key
+secrets/*.pem
+secrets/*.age
+
+# Local/development files
+.env
+*.swp
+*~
+.DS_Store
+
+# Generated/runtime data
+*.log
