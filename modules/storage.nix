@@ -7,6 +7,7 @@
     mdadmConf = ''
       HOMEHOST <system>
       MAILADDR root
+      ARRAY /dev/md/0 metadata=1.2 UUID=06feb5d7:8068ed2e:0d93f17f:649590b9
     '';
   };
 
