@@ -27,6 +27,8 @@
       KillSignal = "SIGINT";
     };
 
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = [
+      "multi-user.target"
+    ];
   };
 }
