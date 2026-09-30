@@ -1,0 +1,40 @@
+#!/bin/bash
+set -euo pipefail
+
+fail() {
+    echo "STORAGE FAILURE: $*" >&2
+    exit 1
+}
+
+# RAID0 array must exist and be active.
+[[ -e /dev/md0 ]] || fail "/dev/md0 does not exist"
+
+MD_STATE="$(cat /sys/block/md0/md/array_state 2>/dev/null || true)"
+
+case "$MD_STATE" in
+    clean|active|active-idle)
+        ;;
+    *)
+        fail "/dev/md0 array state is '$MD_STATE'"
+        ;;
+esac
+
+# Both filesystems must be mounted.
+mountpoint -q /mnt/myraid ||
+    fail "/mnt/myraid is not mounted"
+
+mountpoint -q /mnt/backup ||
+    fail "/mnt/backup is not mounted"
+
+# Verify both mounts are writable without creating persistent files.
+if ! touch /mnt/myraid/.homelab-storage-health-test 2>/dev/null; then
+    fail "/mnt/myraid is not writable"
+fi
+rm -f /mnt/myraid/.homelab-storage-health-test
+
+if ! touch /mnt/backup/.homelab-storage-health-test 2>/dev/null; then
+    fail "/mnt/backup is not writable"
+fi
+rm -f /mnt/backup/.homelab-storage-health-test
+
+exit 0

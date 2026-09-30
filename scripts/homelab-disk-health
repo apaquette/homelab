@@ -1,0 +1,94 @@
+#!/bin/bash
+set -euo pipefail
+
+STATE_DIR="/var/lib/homelab/disk-health"
+NTFY_URL="https://ntfy.alexpaquette.dev/homelab-system"
+NTFY_TOKEN_FILE="/etc/smartd-ntfy-token"
+
+WARNING=80
+CRITICAL=90
+
+mkdir -p "$STATE_DIR"
+
+notify() {
+    local title="$1"
+    local priority="$2"
+    local tags="$3"
+    local message="$4"
+
+    local token
+    token=$(cat "$NTFY_TOKEN_FILE")
+
+    curl -fsS \
+        --max-time 15 \
+        -H "Authorization: Bearer $token" \
+        -H "Title: $title" \
+        -H "Priority: $priority" \
+        -H "Tags: $tags" \
+        -d "$message" \
+        -o /dev/null \
+        "$NTFY_URL"
+}
+
+check_filesystem() {
+    local mount="$1"
+    local safe_name
+    safe_name="${mount#/}"
+    safe_name="${safe_name//\//_}"
+    [[ -n "$safe_name" ]] || safe_name="root"
+
+    local usage
+    usage=$(df -P "$mount" | awk 'NR==2 {gsub("%","",$5); print $5}')
+
+    local inode_usage
+    inode_usage=$(df -Pi "$mount" | awk 'NR==2 {gsub("%","",$5); print $5}')
+
+    local state_file="$STATE_DIR/${safe_name}.state"
+    local previous="normal"
+
+    if [[ -f "$state_file" ]]; then
+        previous=$(cat "$state_file")
+    fi
+
+    local current="normal"
+
+    if (( usage >= CRITICAL || inode_usage >= CRITICAL )); then
+        current="critical"
+    elif (( usage >= WARNING || inode_usage >= WARNING )); then
+        current="warning"
+    fi
+
+    if [[ "$current" != "$previous" || ! -f "$state_file" ]]; then
+        case "$current" in
+            warning)
+                notify \
+                    "Disk space warning — ${mount}" \
+                    "high" \
+                    "warning,computer" \
+                    "${mount} is at ${usage}% capacity and ${inode_usage}% inode usage."
+                ;;
+            critical)
+                notify \
+                    "Disk space critical — ${mount}" \
+                    "max" \
+                    "rotating_light,computer" \
+                    "${mount} is at ${usage}% capacity and ${inode_usage}% inode usage."
+                ;;
+            normal)
+                if [[ "$previous" != "normal" ]]; then
+                    notify \
+                        "Disk space recovered — ${mount}" \
+                        "default" \
+                        "white_check_mark,computer" \
+                        "${mount} has returned to normal usage: ${usage}% capacity and ${inode_usage}% inode usage."
+                fi
+                ;;
+        esac
+
+        printf '%s\n' "$current" > "$state_file"
+    fi
+}
+
+check_filesystem "/"
+check_filesystem "/mnt/myraid"
+check_filesystem "/mnt/backup"

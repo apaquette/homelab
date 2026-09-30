@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+NTFY_URL="https://ntfy.alexpaquette.dev/homelab-system"
+NTFY_TOKEN_FILE="/etc/smartd-ntfy-token"
+
+UNIT="${1:-unknown.service}"
+
+TOKEN=$(cat "$NTFY_TOKEN_FILE")
+
+curl -fsS \
+    --max-time 15 \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Title: Storage failure — ${UNIT}" \
+    -H "Priority: max" \
+    -H "Tags: rotating_light,floppy_disk" \
+    -d "Storage health check ${UNIT} failed. Check: journalctl -u ${UNIT} -n 50 --no-pager" \
+    -o /dev/null \
+    "$NTFY_URL"

@@ -1,0 +1,333 @@
+#!/bin/bash
+set -euo pipefail
+
+BACKUP_ROOT="/mnt/backup/Backup"
+
+SONARR_BACKUPS="/var/lib/sonarr/Backups/scheduled"
+RADARR_BACKUPS="/var/lib/radarr/Backups/scheduled"
+
+JELLYFIN_BACKUP_DIR="$BACKUP_ROOT/Jellyfin"
+
+JENKINS_BACKUP_DIR="$BACKUP_ROOT/Jenkins"
+
+HOMEPAGE_BACKUP_DIR="$BACKUP_ROOT/Homepage"
+
+JELLYFIN_STOPPED=false
+JENKINS_STOPPED=false
+
+log() {
+    printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
+}
+
+cleanup() {
+    local exit_code=$?
+
+    if [[ "$JENKINS_STOPPED" == true ]]; then
+        log "Jenkins was stopped by this backup run; attempting restart"
+        if ! docker start jenkins >/dev/null; then
+            log "ERROR: Failed to restart Jenkins"
+            exit_code=1
+        fi
+        JENKINS_STOPPED=false
+    fi
+
+    if [[ "$JELLYFIN_STOPPED" == true ]]; then
+        log "Jellyfin was stopped by this backup run; attempting restart"
+        if ! systemctl start jellyfin.service; then
+            log "ERROR: Failed to restart Jellyfin"
+            exit_code=1
+        fi
+        JELLYFIN_STOPPED=false
+    fi
+
+    exit "$exit_code"
+}
+
+trap cleanup EXIT
+
+mkdir -p \
+    "$BACKUP_ROOT/Sonarr/scheduled" \
+    "$BACKUP_ROOT/Radarr/scheduled" \
+    "$JELLYFIN_BACKUP_DIR" \
+    "$JENKINS_BACKUP_DIR" \
+    "$HOMEPAGE_BACKUP_DIR"
+
+chmod 750 "$JENKINS_BACKUP_DIR"
+
+# ---------------------------------------------------------------------------
+# Sonarr
+# ---------------------------------------------------------------------------
+
+log "Synchronizing Sonarr backups"
+
+while IFS= read -r -d '' source; do
+    filename="$(basename "$source")"
+    destination="$BACKUP_ROOT/Sonarr/scheduled/$filename"
+    temporary="${destination}.tmp"
+
+    if [[ -f "$destination" ]]; then
+        if unzip -t "$destination" >/dev/null 2>&1; then
+            continue
+        fi
+
+        log "WARNING: Invalid Sonarr backup detected: $destination"
+        rm -f -- "$destination"
+    fi
+
+    log "Copying Sonarr backup: $filename"
+
+    rm -f -- "$temporary"
+
+    rsync -a \
+        "$source" \
+        "$temporary"
+
+    unzip -t "$temporary" >/dev/null
+
+    mv "$temporary" "$destination"
+done < <(
+    find "$SONARR_BACKUPS" \
+        -maxdepth 1 \
+        -type f \
+        -name '*.zip' \
+        -print0
+)
+
+mapfile -t SONARR_OLD < <(
+    find "$BACKUP_ROOT/Sonarr/scheduled" \
+        -type f \
+        -name '*.zip' \
+        -printf '%T@ %p\n' |
+    sort -n |
+    head -n -8 |
+    cut -d' ' -f2-
+)
+
+if ((${#SONARR_OLD[@]} > 0)); then
+    rm -f -- "${SONARR_OLD[@]}"
+fi
+
+# ---------------------------------------------------------------------------
+# Radarr
+# ---------------------------------------------------------------------------
+
+log "Synchronizing Radarr backups"
+
+while IFS= read -r -d '' source; do
+    filename="$(basename "$source")"
+    destination="$BACKUP_ROOT/Radarr/scheduled/$filename"
+    temporary="${destination}.tmp"
+
+    if [[ -f "$destination" ]]; then
+        if unzip -t "$destination" >/dev/null 2>&1; then
+            continue
+        fi
+
+        log "WARNING: Invalid Radarr backup detected: $destination"
+        rm -f -- "$destination"
+    fi
+
+    log "Copying Radarr backup: $filename"
+
+    rm -f -- "$temporary"
+
+    rsync -a \
+        "$source" \
+        "$temporary"
+
+    unzip -t "$temporary" >/dev/null
+
+    mv "$temporary" "$destination"
+done < <(
+    find "$RADARR_BACKUPS" \
+        -maxdepth 1 \
+        -type f \
+        -name '*.zip' \
+        -print0
+)
+
+mapfile -t RADARR_OLD < <(
+    find "$BACKUP_ROOT/Radarr/scheduled" \
+        -type f \
+        -name '*.zip' \
+        -printf '%T@ %p\n' |
+    sort -n |
+    head -n -8 |
+    cut -d' ' -f2-
+)
+
+if ((${#RADARR_OLD[@]} > 0)); then
+    rm -f -- "${RADARR_OLD[@]}"
+fi
+
+# ---------------------------------------------------------------------------
+# Jellyfin
+# ---------------------------------------------------------------------------
+
+TIMESTAMP="$(date '+%Y-%m-%d_%H-%M-%S')"
+JELLYFIN_TMP="$JELLYFIN_BACKUP_DIR/.jellyfin_${TIMESTAMP}.tar.gz.tmp"
+JELLYFIN_FINAL="$JELLYFIN_BACKUP_DIR/jellyfin_${TIMESTAMP}.tar.gz"
+
+log "Stopping Jellyfin for consistent database backup"
+
+systemctl stop jellyfin.service
+JELLYFIN_STOPPED=true
+
+if systemctl is-active --quiet jellyfin.service; then
+    log "ERROR: Jellyfin failed to stop"
+    exit 1
+fi
+
+log "Creating Jellyfin backup"
+
+tar \
+    --create \
+    --gzip \
+    --file="$JELLYFIN_TMP" \
+    --preserve-permissions \
+    --directory=/ \
+    --exclude='./var/lib/jellyfin/jellyfin' \
+    ./var/lib/jellyfin \
+    ./etc/jellyfin
+
+mv "$JELLYFIN_TMP" "$JELLYFIN_FINAL"
+
+log "Starting Jellyfin"
+
+systemctl start jellyfin.service
+JELLYFIN_STOPPED=false
+
+if ! systemctl is-active --quiet jellyfin.service; then
+    log "ERROR: Jellyfin failed to start"
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Jellyfin retention
+# ---------------------------------------------------------------------------
+
+mapfile -t JELLYFIN_OLD < <(
+    find "$JELLYFIN_BACKUP_DIR" \
+        -type f \
+        -name 'jellyfin_*.tar.gz' \
+        -printf '%T@ %p\n' |
+    sort -n |
+    head -n -7 |
+    cut -d' ' -f2-
+)
+
+if ((${#JELLYFIN_OLD[@]} > 0)); then
+    rm -f -- "${JELLYFIN_OLD[@]}"
+fi
+
+# ---------------------------------------------------------------------------
+# Jenkins
+# ---------------------------------------------------------------------------
+
+TIMESTAMP="$(date '+%Y-%m-%d_%H-%M-%S')"
+JENKINS_TMP="$JENKINS_BACKUP_DIR/.jenkins_${TIMESTAMP}.tar.gz.tmp"
+JENKINS_FINAL="$JENKINS_BACKUP_DIR/jenkins_${TIMESTAMP}.tar.gz"
+
+log "Stopping Jenkins for consistent backup"
+
+docker stop jenkins >/dev/null
+JENKINS_STOPPED=true
+
+if docker ps \
+    --filter "name=^jenkins$" \
+    --filter "status=running" \
+    --format '{{.Names}}' |
+    grep -qx jenkins; then
+    log "ERROR: Jenkins failed to stop"
+    exit 1
+fi
+
+log "Creating Jenkins backup"
+
+tar \
+    --create \
+    --gzip \
+    --file="$JENKINS_TMP" \
+    --preserve-permissions \
+    --directory=/opt/jenkins \
+    data
+
+chown root:root "$JENKINS_TMP"
+chmod 640 "$JENKINS_TMP"
+
+mv "$JENKINS_TMP" "$JENKINS_FINAL"
+
+log "Starting Jenkins"
+
+docker start jenkins >/dev/null
+JENKINS_STOPPED=false
+
+if ! docker ps \
+    --filter "name=^jenkins$" \
+    --filter "status=running" \
+    --format '{{.Names}}' |
+    grep -qx jenkins; then
+    log "ERROR: Jenkins failed to start"
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Jenkins retention
+# ---------------------------------------------------------------------------
+
+mapfile -t JENKINS_OLD < <(
+    find "$JENKINS_BACKUP_DIR" \
+        -type f \
+        -name 'jenkins_*.tar.gz' \
+        -printf '%T@ %p\n' |
+    sort -n |
+    head -n -7 |
+    cut -d' ' -f2-
+)
+
+if ((${#JENKINS_OLD[@]} > 0)); then
+    rm -f -- "${JENKINS_OLD[@]}"
+fi
+
+# ---------------------------------------------------------------------------
+# Homepage
+# ---------------------------------------------------------------------------
+
+TIMESTAMP="$(date '+%Y-%m-%d_%H-%M-%S')"
+HOMEPAGE_TMP="$HOMEPAGE_BACKUP_DIR/.homepage_${TIMESTAMP}.tar.gz.tmp"
+HOMEPAGE_FINAL="$HOMEPAGE_BACKUP_DIR/homepage_${TIMESTAMP}.tar.gz"
+
+log "Creating Homepage backup"
+
+tar \
+    --create \
+    --gzip \
+    --file="$HOMEPAGE_TMP" \
+    --preserve-permissions \
+    --directory=/opt \
+    homepage
+
+chown root:root "$HOMEPAGE_TMP"
+chmod 640 "$HOMEPAGE_TMP"
+
+mv "$HOMEPAGE_TMP" "$HOMEPAGE_FINAL"
+
+# ---------------------------------------------------------------------------
+# Homepage retention
+# ---------------------------------------------------------------------------
+
+mapfile -t HOMEPAGE_OLD < <(
+    find "$HOMEPAGE_BACKUP_DIR" \
+        -type f \
+        -name 'homepage_*.tar.gz' \
+        -printf '%T@ %p\n' |
+    sort -n |
+    head -n -7 |
+    cut -d' ' -f2-
+)
+
+if ((${#HOMEPAGE_OLD[@]} > 0)); then
+    rm -f -- "${HOMEPAGE_OLD[@]}"
+fi
+
+log "Backup completed successfully"
