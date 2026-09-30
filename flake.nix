@@ -17,15 +17,23 @@
       pkgs = import nixpkgs {
         inherit system;
       };
-    in
-    {
-      nixosConfigurations.homelab = nixpkgs.lib.nixosSystem {
+
+      homelab = nixpkgs.lib.nixosSystem {
         inherit system;
 
         modules = [
           ./hosts/homelab
           sops-nix.nixosModules.sops
         ];
+      };
+    in
+    {
+      nixosConfigurations.homelab = homelab;
+
+      checks.${system}.configuration = import ./tests/configuration.nix {
+        inherit pkgs;
+        lib = nixpkgs.lib;
+        config = homelab.config;
       };
 
       devShells.${system}.default = pkgs.mkShell {

@@ -4,13 +4,25 @@
   users.users.apaquette = {
     isNormalUser = true;
     uid = 1000;
+    group = "apaquette";
+
     extraGroups = [
       "wheel"
       "video"
+      "users"
     ];
   };
 
   users.groups.apaquette.gid = 1000;
+  users.groups.users.gid = 100;
+
+  users.users.www-data = {
+    isSystemUser = true;
+    uid = 33;
+    group = "www-data";
+  };
+
+  users.groups.www-data.gid = 33;
 
   users.users.radarr = {
     isSystemUser = true;
