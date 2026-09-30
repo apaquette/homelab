@@ -19,6 +19,8 @@ let
     (import ./monitoring.nix { inherit config helpers; })
     (import ./backups.nix { inherit config helpers; })
     (import ./smartd.nix { inherit config helpers; })
+    (import ./compatibility.nix { inherit config pkgs helpers; })
+    (import ./scripts.nix { inherit config helpers; })
 
     # Repository structure
     (helpers.assertPathExists "flake.nix" ../flake.nix)
