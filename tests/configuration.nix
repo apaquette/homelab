@@ -14,7 +14,7 @@ let
     (import ./media-services.nix { inherit config helpers; })
     (import ./seerr.nix { inherit config pkgs helpers; })
     (import ./minecraft.nix { inherit config pkgs helpers; })
-    (import ./compose.nix { inherit config helpers; })
+    (import ./compose.nix { inherit config pkgs helpers; })
     (import ./sops.nix { inherit config helpers; })
     (import ./monitoring.nix { inherit config helpers; })
     (import ./backups.nix { inherit config helpers; })
