@@ -1,0 +1,36 @@
+{ config, helpers, ... }:
+
+with helpers;
+
+[
+  (assertEqual "apaquette UID" 1000 config.users.users.apaquette.uid)
+  (assertEqual "apaquette primary group" "apaquette" config.users.users.apaquette.group)
+  (assertEqual "apaquette GID" 1000 config.users.groups.apaquette.gid)
+
+  (assertEqual "www-data UID" 33 config.users.users."www-data".uid)
+  (assertEqual "www-data GID" 33 config.users.groups."www-data".gid)
+
+  (assertEqual "radarr UID" 101 config.users.users.radarr.uid)
+  (assertEqual "radarr GID" 103 config.users.groups.radarr.gid)
+
+  (assertEqual "sonarr UID" 102 config.users.users.sonarr.uid)
+  (assertEqual "sonarr GID" 104 config.users.groups.sonarr.gid)
+
+  (assertEqual "prowlarr UID" 103 config.users.users.prowlarr.uid)
+  (assertEqual "prowlarr GID" 105 config.users.groups.prowlarr.gid)
+
+  (assertEqual "qbittorrent UID" 104 config.users.users.qbittorrent.uid)
+  (assertEqual "qbittorrent GID" 106 config.users.groups.qbittorrent.gid)
+
+  (assertEqual "jellyfin UID" 105 config.users.users.jellyfin.uid)
+  (assertEqual "jellyfin GID" 107 config.users.groups.jellyfin.gid)
+
+  (assertEqual "seerr UID" 106 config.users.users.seerr.uid)
+  (assertEqual "seerr GID" 108 config.users.groups.seerr.gid)
+
+  (assertEqual "minecraft UID" 997 config.users.users.minecraft.uid)
+  (assertEqual "minecraft GID" 988 config.users.groups.minecraft.gid)
+
+  (assertEqual "jenkins-deploy UID" 1001 config.users.users.jenkins-deploy.uid)
+  (assertEqual "jenkins-deploy GID" 1001 config.users.groups.jenkins-deploy.gid)
+]
