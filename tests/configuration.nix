@@ -12,7 +12,7 @@ let
     (import ./dnsmasq.nix { inherit config helpers; })
     (import ./jellyfin.nix { inherit config pkgs helpers; })
     (import ./media-services.nix { inherit config helpers; })
-    (import ./seerr.nix { inherit config helpers; })
+    (import ./seerr.nix { inherit config pkgs helpers; })
     (import ./minecraft.nix { inherit config helpers; })
     (import ./compose.nix { inherit config helpers; })
     (import ./sops.nix { inherit config helpers; })
