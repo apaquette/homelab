@@ -3,7 +3,12 @@
 {
   networking.networkmanager.enable = true;
 
-  networking.interfaces.enp2s0 = {
+  systemd.network.links."10-lan" = {
+    matchConfig.PermanentMACAddress = "2c:f0:5d:6e:6c:2d";
+    linkConfig.Name = "lan0";
+  };
+
+  networking.interfaces.lan0 = {
     ipv4.addresses = [
       {
         address = "192.168.2.20";

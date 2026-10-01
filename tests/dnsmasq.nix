@@ -10,7 +10,7 @@ with helpers;
 
   (assertEqual
     "dnsmasq interface"
-    [ "enp2s0" ]
+    [ "lan0" ]
     config.services.dnsmasq.settings.interface)
 
   (assertEqual

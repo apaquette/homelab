@@ -5,7 +5,7 @@
     enable = true;
 
     settings = {
-      interface = "enp2s0";
+      interface = "lan0";
       listen-address = [
         "127.0.0.1"
         "192.168.2.20"
