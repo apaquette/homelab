@@ -75,6 +75,10 @@ Production migration
 - [x] Compatibility support for prebuilt applications represented
 - [x] Cross-component configuration invariants
 - [x] Cross-component configuration invariant tests
+- [x] Characterize Docker Compose services
+- [x] Characterize compatibility configuration
+- [x] Characterize script installation
+- [x] Characterize remaining hardware and boot configuration
 
 ## Remaining work
 
@@ -124,10 +128,23 @@ Application state and user data exist outside the Nix store and are treated as p
 
 Important persistent locations include:
 
-* `/mnt/myraid`
-* `/mnt/backup`
-* `/opt`
-* `/var/lib/<service>`
+- `/mnt/myraid`
+- `/mnt/backup`
+- `/opt`
+- `/var/lib/<service>`
+- `/var/lib/caddy`
+
+Host-local application state must be backed up before replacing the NVMe
+operating-system installation.
+
+Caddy state requires particular care because `/var/lib/caddy` contains the
+existing ACME credentials, certificates, private keys, and local CA keys.
+The existing Caddy CA must be preserved during migration rather than
+regenerated unnecessarily.
+
+The existing RAID0 array is particularly important: it must not be
+reformatted, recreated, or otherwise treated as disposable during the
+migration.
 
 The existing RAID0 array is particularly important: it must not be reformatted, recreated, or otherwise treated as disposable during the migration.
 

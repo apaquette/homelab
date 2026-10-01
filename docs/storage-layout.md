@@ -55,3 +55,28 @@ Backups are stored under:
 
 ```text
 /mnt/backup/Backup/
+
+## Host-local application state
+
+The NVMe root filesystem also contains persistent application state that must
+be preserved during the OS migration.
+
+Important locations include:
+
+- `/opt`
+- `/var/lib/jellyfin`
+- `/var/lib/sonarr`
+- `/var/lib/radarr`
+- `/var/lib/prowlarr`
+- `/var/lib/qBittorrent`
+- `/var/lib/seerr`
+- `/var/lib/minecraft`
+- `/var/lib/caddy`
+
+Caddy's state is particularly important because `/var/lib/caddy` contains
+the existing ACME account state, certificates, private keys, and Caddy local
+CA keys. The existing Caddy CA must be preserved rather than regenerated
+during migration.
+
+These directories are not part of the Nix store and are treated as persistent
+migration data.
