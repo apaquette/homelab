@@ -51,9 +51,7 @@ Existing ownership and permissions are part of the application configuration and
 - ext4
 - filesystem UUID `2f26abd3-1603-4c8d-890c-a8a8aea9c5f1`
 
-Backups are stored under:
-
-/mnt/backup/Backup/
+Backups are stored under: `/mnt/backup/Backup/`
 
 ## Host-local application state
 
