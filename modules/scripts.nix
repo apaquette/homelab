@@ -1,6 +1,15 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
+  environment.systemPackages = with pkgs; [
+    curl
+    docker
+    gawk
+    gzip
+    rsync
+    unzip
+  ];
+
   environment.etc = {
     "homelab/scripts/homelab-app-backup".source = ../scripts/homelab-app-backup;
     "homelab/scripts/homelab-backup-ntfy".source = ../scripts/homelab-backup-ntfy;
