@@ -24,6 +24,7 @@ let
     (import ./hardware.nix { inherit config helpers; })
     (import ./invariants.nix { inherit config helpers; })
     (import ./hardware-specific.nix { inherit config pkgs helpers; })
+    (import ./cockpit.nix { inherit config helpers; })
 
     # Repository structure
     (helpers.assertPathExists "flake.nix" ../flake.nix)
