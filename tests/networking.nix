@@ -5,38 +5,19 @@ with helpers;
 [
   (assertEqual
     "network manager enabled"
-    true
+    false
     config.networking.networkmanager.enable)
 
   (assertEqual
-    "static IP"
-    "192.168.2.20"
-    (builtins.head config.networking.interfaces.lan0.ipv4.addresses).address)
+    "networkd enabled"
+    true
+    config.networking.useNetworkd)
 
   (assertEqual
-    "static IP prefix length"
-    24
-    (builtins.head config.networking.interfaces.lan0.ipv4.addresses).prefixLength)
+    "systemd network enabled"
+    true
+    config.systemd.network.enable)
 
-  (assertEqual
-    "default gateway"
-    "192.168.2.1"
-    config.networking.defaultGateway.address)
-
-  (assertContains
-    "DNS servers"
-    "192.168.2.20"
-    config.networking.nameservers)
-
-  (assertContains
-    "DNS servers"
-    "1.1.1.1"
-    config.networking.nameservers)
-
-  (assertContains
-    "DNS servers"
-    "8.8.8.8"
-    config.networking.nameservers)
   (assertEqual
     "LAN interface MAC"
     "2c:f0:5d:6e:6c:2d"
@@ -46,4 +27,29 @@ with helpers;
     "LAN interface name"
     "lan0"
     config.systemd.network.links."10-lan".linkConfig.Name)
+
+  (assertContains
+    "LAN static address"
+    "192.168.2.20/24"
+    config.systemd.network.networks."10-lan".address)
+
+  (assertEqual
+    "LAN gateway"
+    "192.168.2.1"
+    (builtins.head config.systemd.network.networks."10-lan".routes).Gateway)
+
+  (assertContains
+    "LAN DNS servers"
+    "192.168.2.20"
+    config.systemd.network.networks."10-lan".dns)
+
+  (assertContains
+    "LAN DNS servers"
+    "1.1.1.1"
+    config.systemd.network.networks."10-lan".dns)
+
+  (assertContains
+    "LAN DNS servers"
+    "8.8.8.8"
+    config.systemd.network.networks."10-lan".dns)
 ]
