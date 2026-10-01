@@ -53,7 +53,6 @@ Existing ownership and permissions are part of the application configuration and
 
 Backups are stored under:
 
-```text
 /mnt/backup/Backup/
 
 ## Host-local application state
