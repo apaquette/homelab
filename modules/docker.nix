@@ -11,6 +11,11 @@
     };
   };
 
+  systemd.services.docker.serviceConfig.RequiresMountsFor = [
+    "/mnt/myraid"
+    "/mnt/backup"
+  ];
+
   environment.systemPackages = [
     pkgs.docker-compose
   ];
