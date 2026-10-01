@@ -6,17 +6,21 @@
 
     settings = {
       interface = "lan0";
+
       listen-address = [
         "127.0.0.1"
         "192.168.2.20"
       ];
-      bind-interfaces = true;
+
+      bind-dynamic = true;
 
       dhcp-range = "192.168.2.50,192.168.2.199,255.255.255.0,12h";
+
       dhcp-option = [
         "option:router,192.168.2.1"
         "option:dns-server,192.168.2.20"
       ];
+
       log-dhcp = true;
 
       address = [
@@ -25,7 +29,6 @@
         "/immich.alexpaquette.dev/192.168.2.20"
         "/cloud.alexpaquette.dev/192.168.2.20"
         "/ntfy.alexpaquette.dev/192.168.2.20"
-
         "/radarr.alexpaquette.dev/192.168.2.20"
         "/sonarr.alexpaquette.dev/192.168.2.20"
         "/prowlarr.alexpaquette.dev/192.168.2.20"
@@ -49,5 +52,10 @@
         "b4:2e:99:fb:61:ae,192.168.2.100,nixos-desktop"
       ];
     };
+  };
+
+  systemd.services.dnsmasq = {
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
   };
 }

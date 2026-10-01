@@ -3,6 +3,7 @@
 {
   networking.networkmanager.enable = false;
   networking.useNetworkd = true;
+  networking.useDHCP = false;
 
   systemd.network.enable = true;
 
@@ -29,5 +30,7 @@
       "1.1.1.1"
       "8.8.8.8"
     ];
+
+    linkConfig.RequiredForOnline = "routable";
   };
 }
