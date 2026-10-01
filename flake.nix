@@ -30,10 +30,17 @@
     {
       nixosConfigurations.homelab = homelab;
 
-      checks.${system}.configuration = import ./tests/configuration.nix {
-        inherit pkgs;
-        lib = nixpkgs.lib;
-        config = homelab.config;
+      checks.${system} = {
+        configuration = import ./tests/configuration.nix {
+          inherit pkgs;
+          lib = nixpkgs.lib;
+          config = homelab.config;
+        };
+
+        vm = import ./tests/vm.nix {
+          inherit pkgs;
+          lib = nixpkgs.lib;
+        };
       };
 
       devShells.${system}.default = pkgs.mkShell {
