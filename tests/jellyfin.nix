@@ -27,4 +27,8 @@ with helpers;
     "Jellyfin VA-API driver"
     "iHD"
     config.systemd.services.jellyfin.environment.LIBVA_DRIVER_NAME)
+  (assertContains
+    "Jellyfin requires myraid"
+    "mnt-myraid.mount"
+    config.systemd.services.jellyfin.requires)
 ]
