@@ -69,20 +69,30 @@ with helpers;
     "Prowlarr state directory"
     "/var/lib/prowlarr"
     config.services.prowlarr.dataDir)
+# qBittorrent
+(assertEqual
+  "qBittorrent service enabled"
+  true
+  config.services.qbittorrent.enable)
 
-  # qBittorrent
-  (assertEqual
-    "qBittorrent service enabled"
-    true
-    config.systemd.services.qbittorrent-nox.enable)
+(assertEqual
+  "qBittorrent user"
+  "qbittorrent"
+  config.services.qbittorrent.user)
 
-  (assertEqual
-    "qBittorrent user"
-    "qbittorrent"
-    config.systemd.services.qbittorrent-nox.serviceConfig.User)
+(assertEqual
+  "qBittorrent group"
+  "qbittorrent"
+  config.services.qbittorrent.group)
 
-  (assertEqual
-    "qBittorrent group"
-    "qbittorrent"
-    config.systemd.services.qbittorrent-nox.serviceConfig.Group)
+(assertEqual
+  "qBittorrent profile directory"
+  "/var/lib/qBittorrent"
+  config.services.qbittorrent.profileDir)
+
+(assertEqual
+  "qBittorrent WebUI port"
+  8080
+  config.services.qbittorrent.webuiPort)
+
 ]

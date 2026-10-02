@@ -15,7 +15,7 @@
   (helpers.assertContains
     "qBittorrent requires myraid"
     "mnt-myraid.mount"
-    config.systemd.services.qbittorrent-nox.requires)
+    config.systemd.services.qbittorrent.requires)
 
   # Storage-dependent Compose services
   (helpers.assertContains

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 let
    mediaServiceRequirements = {
      after = [ "mnt-myraid.mount" ];
@@ -32,39 +32,23 @@ in
     dataDir = "/var/lib/prowlarr";
   };
 
-  systemd.services.qbittorrent-nox = {
-    description = "qBittorrent-nox";
+  services.qbittorrent = {
+    enable = true;
+    package = pkgs.qbittorrent-nox;
 
-    after = [
-      "network-online.target"
-      "mnt-myraid.mount"
-    ];
+    user = "qbittorrent";
+    group = "qbittorrent";
 
-    wants = [
-      "network-online.target"
-    ];
+    profileDir = "/var/lib/qBittorrent";
+    webuiPort = 8080;
+  };
 
-    requires = [
-      "mnt-myraid.mount"
-    ];
-
-    serviceConfig = {
-      User = "qbittorrent";
-      Group = "qbittorrent";
-      Type = "simple";
-
-      ExecStart = "${pkgs.qbittorrent-nox}/bin/qbittorrent-nox";
-
-      PrivateTmp = false;
-
-      TimeoutStopSec = 1800;
-
-      Restart = "on-failure";
-      RestartSec = 5;
+  systemd.services.qbittorrent =
+    mediaServiceRequirements
+    // {
+      serviceConfig = {
+        SupplementaryGroups = config.users.users.qbittorrent.extraGroups;
+      };
     };
 
-    wantedBy = [
-      "multi-user.target"
-    ];
-  };
 }
