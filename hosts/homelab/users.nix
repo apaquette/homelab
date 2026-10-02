@@ -67,14 +67,6 @@
 
   users.groups.jellyfin.gid = 107;
 
-  users.users.seerr = {
-    isSystemUser = true;
-    uid = 106;
-    group = "seerr";
-  };
-
-  users.groups.seerr.gid = 108;
-
   users.users.minecraft = {
     isSystemUser = true;
     uid = 997;

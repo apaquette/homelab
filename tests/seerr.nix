@@ -6,48 +6,40 @@ with helpers;
   (assertEqual
     "Seerr service enabled"
     true
-    config.systemd.services.seerr.enable)
+    config.services.seerr.enable)
 
   (assertEqual
-    "Seerr service user"
+    "Seerr package"
+    pkgs.seerr
+    config.services.seerr.package)
+
+  (assertEqual
+    "Seerr port"
+    5055
+    config.services.seerr.port)
+
+  (assertEqual
+    "Seerr config directory"
+    "/var/lib/seerr"
+    config.services.seerr.configDir)
+
+  (assertEqual
+    "Seerr firewall disabled"
+    false
+    config.services.seerr.openFirewall)
+
+  (assertEqual
+    "Seerr uses dynamic user"
+    true
+    config.systemd.services.seerr.serviceConfig.DynamicUser)
+
+  (assertEqual
+    "Seerr state directory"
     "seerr"
-    config.systemd.services.seerr.serviceConfig.User)
+    config.systemd.services.seerr.serviceConfig.StateDirectory)
 
   (assertEqual
-    "Seerr service group"
-    "seerr"
-    config.systemd.services.seerr.serviceConfig.Group)
-
-  (assertEqual
-    "Seerr working directory"
-    "/opt/seerr"
-    config.systemd.services.seerr.serviceConfig.WorkingDirectory)
-
-  (assertEqual
-    "Seerr environment"
-    [
-      "NODE_ENV=production"
-      "CONFIG_DIRECTORY=/var/lib/seerr"
-    ]
-    config.systemd.services.seerr.serviceConfig.Environment)
-
-  (assertEqual
-    "Seerr ExecStart"
-    "${pkgs.nodejs}/bin/node /opt/seerr/dist/index.js"
-    config.systemd.services.seerr.serviceConfig.ExecStart)
-
-  (assertEqual
-    "Seerr restart policy"
-    "on-failure"
-    config.systemd.services.seerr.serviceConfig.Restart)
-
-  (assertEqual
-    "Seerr restart delay"
-    5
-    config.systemd.services.seerr.serviceConfig.RestartSec)
-
-  (assertEqual
-    "Seerr stop timeout"
-    30
-    config.systemd.services.seerr.serviceConfig.TimeoutStopSec)
+    "Seerr requires config mount"
+    [ "/var/lib/seerr" ]
+    config.systemd.services.seerr.unitConfig.RequiresMountsFor)
 ]

@@ -30,7 +30,6 @@
     "d /var/lib/sonarr 0750 sonarr sonarr -"
     "d /var/lib/prowlarr 0755 prowlarr prowlarr -"
     "d /var/lib/qBittorrent 0755 qbittorrent qbittorrent -"
-    "d /var/lib/seerr 0750 seerr seerr -"
     "d /var/lib/minecraft 0700 minecraft minecraft -"
     "d /var/lib/jellyfin 0750 jellyfin jellyfin -"
 
