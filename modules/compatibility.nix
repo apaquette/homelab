@@ -8,6 +8,8 @@
       glibc
       libgcc
       stdenv.cc.cc
+      icu
+      sqlite.out
     ];
   };
 }

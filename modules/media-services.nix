@@ -83,11 +83,7 @@
       Group = "prowlarr";
       Type = "simple";
 
-      WorkingDirectory = "/var/lib/qBittorrent";
-
       ExecStart = "/opt/Prowlarr/Prowlarr -nobrowser -data=/var/lib/prowlarr";
-
-      PrivateTmp = false;
 
       TimeoutStopSec = 1800;
 

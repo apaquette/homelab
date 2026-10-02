@@ -13,8 +13,8 @@
 
   services.jellyfin = {
     enable = true;
-    user = "apaquette";
-    group = "apaquette";
+    user = "jellyfin";
+    group = "jellyfin";
   };
 
   systemd.services.jellyfin.environment = {

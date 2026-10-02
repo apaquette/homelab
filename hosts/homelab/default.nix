@@ -3,6 +3,7 @@
 {
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  time.timeZone = "America/Halifax";
 
   services.openssh.enable = true;
   imports = [
