@@ -7,24 +7,29 @@ with helpers;
   (assertEqual
     "Sonarr service enabled"
     true
-    config.systemd.services.sonarr.enable)
+    config.services.sonarr.enable)
 
   (assertEqual
     "Sonarr user"
     "sonarr"
-    config.systemd.services.sonarr.serviceConfig.User)
+    config.services.sonarr.user)
 
   (assertEqual
     "Sonarr group"
     "sonarr"
-    config.systemd.services.sonarr.serviceConfig.Group)
+    config.services.sonarr.group)
 
   (assertEqual
     "Sonarr state directory"
     "/var/lib/sonarr"
-    (builtins.elemAt
-      (builtins.match ".*-data=([^ ]+).*" config.systemd.services.sonarr.serviceConfig.ExecStart)
-      0))
+    config.services.sonarr.dataDir)
+
+  (assertEqual
+    "Sonarr media user access"
+    true
+    (builtins.elem
+      "apaquette"
+      config.users.users.sonarr.extraGroups))
 
   # Radarr
   (assertEqual

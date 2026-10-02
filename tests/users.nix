@@ -13,8 +13,9 @@ with helpers;
   (assertEqual "radarr UID" 101 config.users.users.radarr.uid)
   (assertEqual "radarr GID" 103 config.users.groups.radarr.gid)
 
-  (assertEqual "sonarr UID" 102 config.users.users.sonarr.uid)
-  (assertEqual "sonarr GID" 104 config.users.groups.sonarr.gid)
+  (assertEqual "sonarr user has media access" true
+     (builtins.elem "apaquette" config.users.users.sonarr.extraGroups)
+  )
 
   (assertEqual "prowlarr UID" 103 config.users.users.prowlarr.uid)
   (assertEqual "prowlarr GID" 105 config.users.groups.prowlarr.gid)

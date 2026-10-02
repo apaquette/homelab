@@ -1,37 +1,17 @@
 { pkgs, ... }:
 
 {
+  services.sonarr = {
+    enable = true;
+    package = pkgs.sonarr;
+    dataDir = "/var/lib/sonarr";
+    user = "sonarr";
+    group = "sonarr";
+  };
+
   systemd.services.sonarr = {
-    description = "Sonarr";
-
-    after = [
-      "network-online.target"
-      "mnt-myraid.mount"
-    ];
-
-    wants = [
-      "network-online.target"
-    ];
-
-    requires = [
-      "mnt-myraid.mount"
-    ];
-
-    serviceConfig = {
-      User = "sonarr";
-      Group = "sonarr";
-      Type = "simple";
-
-      ExecStart = "/opt/Sonarr/Sonarr -nobrowser -data=/var/lib/sonarr";
-
-      Restart = "on-failure";
-      RestartSec = 5;
-      TimeoutStopSec = 20;
-    };
-
-    wantedBy = [
-      "multi-user.target"
-    ];
+    after = [ "mnt-myraid.mount" ];
+    requires = [ "mnt-myraid.mount" ];
   };
 
   systemd.services.radarr = {

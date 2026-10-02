@@ -34,14 +34,7 @@
 
   users.groups.radarr.gid = 103;
 
-  users.users.sonarr = {
-    isSystemUser = true;
-    uid = 102;
-    group = "sonarr";
-    extraGroups = [ "apaquette" ];
-  };
-
-  users.groups.sonarr.gid = 104;
+  users.users.sonarr.extraGroups = [ "apaquette" ];
 
   users.users.prowlarr = {
     isSystemUser = true;
