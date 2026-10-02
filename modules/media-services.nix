@@ -26,33 +26,10 @@ in
 
    systemd.services.radarr = mediaServiceRequirements;
 
-  systemd.services.prowlarr = {
-    description = "Prowlarr";
-
-    after = [
-      "network-online.target"
-    ];
-
-    wants = [
-      "network-online.target"
-    ];
-
-    serviceConfig = {
-      User = "prowlarr";
-      Group = "prowlarr";
-      Type = "simple";
-
-      ExecStart = "/opt/Prowlarr/Prowlarr -nobrowser -data=/var/lib/prowlarr";
-
-      TimeoutStopSec = 1800;
-
-      Restart = "on-failure";
-      RestartSec = 5;
-    };
-
-    wantedBy = [
-      "multi-user.target"
-    ];
+  services.prowlarr = {
+    enable = true;
+    package = pkgs.prowlarr;
+    dataDir = "/var/lib/prowlarr";
   };
 
   systemd.services.qbittorrent-nox = {

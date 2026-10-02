@@ -21,9 +21,6 @@ with helpers;
      (builtins.elem "apaquette" config.users.users.sonarr.extraGroups)
   )
 
-  (assertEqual "prowlarr UID" 103 config.users.users.prowlarr.uid)
-  (assertEqual "prowlarr GID" 105 config.users.groups.prowlarr.gid)
-
   (assertEqual "qbittorrent UID" 104 config.users.users.qbittorrent.uid)
   (assertEqual "qbittorrent GID" 106 config.users.groups.qbittorrent.gid)
 

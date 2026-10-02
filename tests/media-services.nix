@@ -63,24 +63,12 @@ with helpers;
   (assertEqual
     "Prowlarr service enabled"
     true
-    config.systemd.services.prowlarr.enable)
-
-  (assertEqual
-    "Prowlarr user"
-    "prowlarr"
-    config.systemd.services.prowlarr.serviceConfig.User)
-
-  (assertEqual
-    "Prowlarr group"
-    "prowlarr"
-    config.systemd.services.prowlarr.serviceConfig.Group)
+    config.services.prowlarr.enable)
 
   (assertEqual
     "Prowlarr state directory"
     "/var/lib/prowlarr"
-    (builtins.elemAt
-      (builtins.match ".*-data=([^ ]+).*" config.systemd.services.prowlarr.serviceConfig.ExecStart)
-      0))
+    config.services.prowlarr.dataDir)
 
   # qBittorrent
   (assertEqual
