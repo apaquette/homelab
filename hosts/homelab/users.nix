@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 
 {
   users.users.apaquette = {
@@ -27,12 +27,12 @@
 
   users.users.radarr = {
     isSystemUser = true;
-    uid = 101;
+    uid = lib.mkForce 101;
     group = "radarr";
     extraGroups = [ "apaquette" ];
   };
 
-  users.groups.radarr.gid = 103;
+  users.groups.radarr.gid = lib.mkForce 103;
 
   users.users.sonarr.extraGroups = [ "apaquette" ];
 

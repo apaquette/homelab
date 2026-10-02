@@ -35,24 +35,29 @@ with helpers;
   (assertEqual
     "Radarr service enabled"
     true
-    config.systemd.services.radarr.enable)
+    config.services.radarr.enable)
 
   (assertEqual
     "Radarr user"
     "radarr"
-    config.systemd.services.radarr.serviceConfig.User)
+    config.services.radarr.user)
 
   (assertEqual
     "Radarr group"
     "radarr"
-    config.systemd.services.radarr.serviceConfig.Group)
+    config.services.radarr.group)
 
   (assertEqual
     "Radarr state directory"
     "/var/lib/radarr"
-    (builtins.elemAt
-      (builtins.match ".*-data=([^ ]+).*" config.systemd.services.radarr.serviceConfig.ExecStart)
-      0))
+    config.services.radarr.dataDir)
+
+  (assertEqual
+    "Radarr media user access"
+    true
+    (builtins.elem
+      "apaquette"
+      config.users.users.radarr.extraGroups))
 
   # Prowlarr
   (assertEqual

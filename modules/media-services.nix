@@ -1,5 +1,10 @@
 { pkgs, ... }:
-
+let
+   mediaServiceRequirements = {
+     after = [ "mnt-myraid.mount" ];
+     requires = [ "mnt-myraid.mount" ];
+   };
+in
 {
   services.sonarr = {
     enable = true;
@@ -9,43 +14,17 @@
     group = "sonarr";
   };
 
-  systemd.services.sonarr = {
-    after = [ "mnt-myraid.mount" ];
-    requires = [ "mnt-myraid.mount" ];
+  systemd.services.sonarr = mediaServiceRequirements;
+
+  services.radarr = {
+    enable = true;
+    package = pkgs.radarr;
+    dataDir = "/var/lib/radarr";
+    user = "radarr";
+    group = "radarr";
   };
 
-  systemd.services.radarr = {
-    description = "Radarr";
-
-    after = [
-      "network-online.target"
-      "mnt-myraid.mount"
-    ];
-
-    wants = [
-      "network-online.target"
-    ];
-
-    requires = [
-      "mnt-myraid.mount"
-    ];
-
-    serviceConfig = {
-      User = "radarr";
-      Group = "radarr";
-      Type = "simple";
-
-      ExecStart = "/opt/Radarr/Radarr -nobrowser -data=/var/lib/radarr";
-
-      Restart = "on-failure";
-      RestartSec = 5;
-      TimeoutStopSec = 20;
-    };
-
-    wantedBy = [
-      "multi-user.target"
-    ];
-  };
+   systemd.services.radarr = mediaServiceRequirements;
 
   systemd.services.prowlarr = {
     description = "Prowlarr";

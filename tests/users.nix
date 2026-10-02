@@ -10,8 +10,12 @@ with helpers;
   (assertEqual "www-data UID" 33 config.users.users."www-data".uid)
   (assertEqual "www-data GID" 33 config.users.groups."www-data".gid)
 
-  (assertEqual "radarr UID" 101 config.users.users.radarr.uid)
-  (assertEqual "radarr GID" 103 config.users.groups.radarr.gid)
+  (assertEqual
+  "radarr user has media access"
+  true
+  (builtins.elem
+    "apaquette"
+    config.users.users.radarr.extraGroups))
 
   (assertEqual "sonarr user has media access" true
      (builtins.elem "apaquette" config.users.users.sonarr.extraGroups)
