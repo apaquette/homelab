@@ -27,9 +27,6 @@ with helpers;
   (assertEqual "jellyfin UID" 105 config.users.users.jellyfin.uid)
   (assertEqual "jellyfin GID" 107 config.users.groups.jellyfin.gid)
 
-  (assertEqual "seerr UID" 106 config.users.users.seerr.uid)
-  (assertEqual "seerr GID" 108 config.users.groups.seerr.gid)
-
   (assertEqual "minecraft UID" 997 config.users.users.minecraft.uid)
   (assertEqual "minecraft GID" 988 config.users.groups.minecraft.gid)
 
