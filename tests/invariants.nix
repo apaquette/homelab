@@ -64,11 +64,6 @@
     "docker.service"
     config.systemd.services.jenkins-compose.requires)
 
-  (helpers.assertContains
-    "Homepage Compose requires Docker"
-    "docker.service"
-    config.systemd.services.homepage-compose.requires)
-
   # Backup failure notification handlers
   (helpers.assertContains
     "application backup notification handler"

@@ -153,26 +153,4 @@
     };
   };
 
-  systemd.services.homepage-compose = {
-    description = "Homepage Docker Compose stack";
-
-    wantedBy = [ "multi-user.target" ];
-
-    after = [
-      "docker.service"
-    ];
-
-    requires = [
-      "docker.service"
-    ];
-
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      WorkingDirectory = "/opt/homepage";
-
-      ExecStart = "${pkgs.docker-compose}/bin/docker-compose up -d";
-      ExecStop = "${pkgs.docker-compose}/bin/docker-compose down";
-    };
-  };
 }

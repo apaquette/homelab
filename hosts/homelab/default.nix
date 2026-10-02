@@ -29,6 +29,7 @@
     ../../modules/smartd.nix
     ../../modules/cockpit.nix
     ../../modules/system-tools.nix
+    ../../modules/homepage.nix
   ];
 
   networking.hostName = "homelab";

@@ -8,7 +8,6 @@ let
     "uptime-kuma-compose"
     "ntfy-compose"
     "jenkins-compose"
-    "homepage-compose"
   ];
 
   service = name: config.systemd.services.${name};
@@ -127,11 +126,6 @@ let
       "jenkins-compose working directory"
       "/opt/jenkins"
       (service "jenkins-compose").serviceConfig.WorkingDirectory)
-
-    (helpers.assertEqual
-      "homepage-compose working directory"
-      "/opt/homepage"
-      (service "homepage-compose").serviceConfig.WorkingDirectory)
   ];
 
   secretTests = [
@@ -166,11 +160,6 @@ let
       "jenkins-compose has no EnvironmentFile"
       null
       (service "jenkins-compose").serviceConfig.EnvironmentFile or null)
-
-    (helpers.assertEqual
-      "homepage-compose has no EnvironmentFile"
-      null
-      (service "homepage-compose").serviceConfig.EnvironmentFile or null)
   ];
 
 in
