@@ -10,7 +10,6 @@ let
     "homelab-storage-ntfy"
     "immich-backup"
     "nextcloud-backup.sh"
-    "smartd-ntfy"
   ];
 
   script = name: config.environment.etc."homelab/scripts/${name}";

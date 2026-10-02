@@ -19,6 +19,5 @@
     "homelab/scripts/homelab-storage-ntfy".source = ../scripts/homelab-storage-ntfy;
     "homelab/scripts/immich-backup".source = ../scripts/immich-backup;
     "homelab/scripts/nextcloud-backup.sh".source = ../scripts/nextcloud-backup.sh;
-    "homelab/scripts/smartd-ntfy".source = ../scripts/smartd-ntfy;
   };
 }

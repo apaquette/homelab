@@ -41,7 +41,6 @@ let
     (helpers.assertPathExists "homelab-storage-ntfy script" ../scripts/homelab-storage-ntfy)
     (helpers.assertPathExists "immich-backup script" ../scripts/immich-backup)
     (helpers.assertPathExists "nextcloud-backup script" ../scripts/nextcloud-backup.sh)
-    (helpers.assertPathExists "smartd-ntfy script" ../scripts/smartd-ntfy)
 
     # Compatibility
     (helpers.assertEqual
