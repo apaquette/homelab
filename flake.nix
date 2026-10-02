@@ -16,6 +16,11 @@
 
       pkgs = import nixpkgs {
         inherit system;
+	
+        config.allowUnfreePredicate = pkg:
+	    builtins.elem (nixpkgs.lib.getName pkg) [
+	      "minecraft-server"
+	    ];
       };
 
       homelab = nixpkgs.lib.nixosSystem {

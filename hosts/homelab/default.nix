@@ -4,7 +4,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   time.timeZone = "America/Halifax";
-
+  nixpkgs.config.allowUnfreePackages = [
+    "minecraft-server"
+  ];
   services.openssh.enable = true;
   imports = [
     ./hardware-configuration.nix

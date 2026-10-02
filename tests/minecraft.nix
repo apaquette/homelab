@@ -1,72 +1,83 @@
 { config, pkgs, helpers, ... }:
 
 with helpers;
-
 [
-  (assertEqual
-    "Minecraft service enabled"
-    true
-    config.systemd.services.minecraft.enable)
+(assertEqual
+  "Minecraft uses declarative configuration"
+  true
+  config.services.minecraft-server.declarative)
 
-  (assertEqual
-    "Minecraft service user"
-    "minecraft"
-    config.systemd.services.minecraft.serviceConfig.User)
+(assertEqual
+  "Minecraft server port"
+  4300
+  config.services.minecraft-server.serverProperties.server-port)
 
-  (assertEqual
-    "Minecraft service group"
-    "minecraft"
-    config.systemd.services.minecraft.serviceConfig.Group)
+(assertEqual
+  "Minecraft query enabled"
+  true
+  config.services.minecraft-server.serverProperties.enable-query)
 
-  (assertEqual
-    "Minecraft working directory"
-    "/var/lib/minecraft"
-    config.systemd.services.minecraft.serviceConfig.WorkingDirectory)
+(assertEqual
+  "Minecraft query port"
+  25565
+  config.services.minecraft-server.serverProperties."query.port")
 
-  (assertEqual
-    "Minecraft Java runtime"
-    "${pkgs.jdk21}/bin/java"
-    (builtins.elemAt
-      (builtins.match "([^ ]+) -Xms2048M.*" config.systemd.services.minecraft.serviceConfig.ExecStart)
-      0))
+(assertEqual
+  "Minecraft difficulty"
+  "normal"
+  config.services.minecraft-server.serverProperties.difficulty)
 
-  (assertEqual
-    "Minecraft minimum heap"
-    true
-    (builtins.match ".*-Xms2048M.*" config.systemd.services.minecraft.serviceConfig.ExecStart != null))
+(assertEqual
+  "Minecraft gamemode"
+  "survival"
+  config.services.minecraft-server.serverProperties.gamemode)
 
-  (assertEqual
-    "Minecraft maximum heap"
-    true
-    (builtins.match ".*-Xmx4096M.*" config.systemd.services.minecraft.serviceConfig.ExecStart != null))
+(assertEqual
+  "Minecraft max players"
+  5
+  config.services.minecraft-server.serverProperties.max-players)
 
-  (assertEqual
-    "Minecraft server JAR"
-    true
-    (builtins.match ".*/opt/minecraft/server\\.jar.*" config.systemd.services.minecraft.serviceConfig.ExecStart != null))
+(assertEqual
+  "Minecraft MOTD"
+  "Alex's Minecraft server!"
+  config.services.minecraft-server.serverProperties.motd)
 
-  (assertEqual
-    "Minecraft nogui"
-    true
-    (builtins.match ".*nogui" config.systemd.services.minecraft.serviceConfig.ExecStart != null))
+(assertEqual
+  "Minecraft whitelist enabled"
+  true
+  config.services.minecraft-server.serverProperties."white-list")
 
-  (assertEqual
-    "Minecraft restart policy"
-    "on-failure"
-    config.systemd.services.minecraft.serviceConfig.Restart)
+(assertEqual
+  "Minecraft online mode"
+  true
+  config.services.minecraft-server.serverProperties."online-mode")
 
-  (assertEqual
-    "Minecraft restart delay"
-    10
-    config.systemd.services.minecraft.serviceConfig.RestartSec)
+(assertEqual
+  "Minecraft view distance"
+  10
+  config.services.minecraft-server.serverProperties."view-distance")
 
-  (assertEqual
-    "Minecraft stop timeout"
-    30
-    config.systemd.services.minecraft.serviceConfig.TimeoutStopSec)
+(assertEqual
+  "Minecraft simulation distance"
+  10
+  config.services.minecraft-server.serverProperties."simulation-distance")
 
-  (assertEqual
-    "Minecraft kill signal"
-    "SIGINT"
-    config.systemd.services.minecraft.serviceConfig.KillSignal)
+(assertEqual
+  "Minecraft allow cheats"
+  true
+  config.services.minecraft-server.serverProperties."allow-cheats")
+
+(assertEqual
+  "Minecraft generate structures"
+  true
+  config.services.minecraft-server.serverProperties."generate-structures")
+
+(assertEqual
+  "Minecraft level name"
+  "world"
+  config.services.minecraft-server.serverProperties."level-name")
+(assertEqual
+  "Minecraft whitelist configured"
+  true
+  (config.services.minecraft-server.whitelist != null))
 ]
