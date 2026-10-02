@@ -1,11 +1,11 @@
-{ config, pkgs, ... }:
+{ config, pkgs, unstable, ... }:
 
 {
   sops.templates."homepage.env" = { };
 
   services.homepage-dashboard = {
     enable = true;
-    package = pkgs.homepage-dashboard;
+    package = unstable.homepage-dashboard;
 
     listenPort = 3000;
     allowedHosts = "homepage.alexpaquette.dev";
@@ -21,66 +21,38 @@
       theme = "dark";
       color = "slate";
 
-      layout = {
-        Media = {
-          style = "row";
-          columns = 4;
-        };
-
-        Cloud = {
-          style = "row";
-          columns = 3;
-        };
-
-        Infrastructure = {
-          style = "row";
-          columns = 3;
-        };
-
-        Development = {
-          style = "row";
-          columns = 1;
-        };
-      };
+      layout = [
+  {
+    Media = {
+      style = "row";
+      columns = 4;
+    };
+  }
+  {
+    Cloud = {
+      style = "row";
+      columns = 3;
+    };
+  }
+  {
+    Infrastructure = {
+      style = "row";
+      columns = 3;
+    };
+  }
+  {
+    Development = {
+      style = "row";
+      columns = 1;
+    };
+  }
+];
 
       providers = {
         openweathermap = "openweathermapapikey";
         weatherapi = "weatherapiapikey";
       };
     };
-
-    bookmarks = [
-      {
-        Developer = [
-          {
-            Github = {
-              abbr = "GH";
-              href = "https://github.com/";
-            };
-          }
-        ];
-      }
-      {
-        Social = [
-          {
-            Reddit = {
-              abbr = "RE";
-              href = "https://reddit.com/";
-            };
-          }
-        ];
-      }
-      {
-        Entertainment = [
-          {
-            YouTube = {
-              abbr = "YT";
-              href = "https://youtube.com/";
-            };
-          }
-        ];
-      }
-    ];
 
     widgets = [
       {

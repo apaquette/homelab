@@ -1,4 +1,4 @@
-{ config, pkgs, lib, helpers, ... }:
+{ config, pkgs, lib, helpers, unstable  ... }:
 
 with helpers;
 
@@ -10,8 +10,13 @@ with helpers;
 
   (assertEqual
     "Homepage package"
-    pkgs.homepage-dashboard
+    unstable.homepage-dashboard
     config.services.homepage-dashboard.package)
+
+(assertEqual
+  "Homepage package version"
+  "2.3.0"
+  config.services.homepage-dashboard.package.version)
 
   (assertEqual
     "Homepage port"
@@ -77,11 +82,6 @@ with helpers;
     "Homepage service groups"
     4
     (builtins.length config.services.homepage-dashboard.services))
-
-  (assertEqual
-    "Homepage bookmark groups"
-    3
-    (builtins.length config.services.homepage-dashboard.bookmarks))
 
   (assertEqual
     "Homepage info widgets"
