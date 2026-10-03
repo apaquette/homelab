@@ -29,11 +29,6 @@
     "docker.service"
     config.systemd.services.nextcloud-compose.requires)
 
-  (helpers.assertContains
-    "Jenkins Compose requires Docker"
-    "docker.service"
-    config.systemd.services.jenkins-compose.requires)
-
   # Backup failure notification handlers
   (helpers.assertContains
     "application backup notification handler"

@@ -30,6 +30,7 @@ let
     (import ./uptime-kuma.nix { inherit config pkgs lib helpers; })
     (import ./beszel.nix { inherit config pkgs unstable lib helpers; })
     (import ./immich.nix { inherit config lib unstable helpers; })
+    (import ./jenkins.nix { inherit config lib; })
 
     # Repository structure
     (helpers.assertPathExists "flake.nix" ../flake.nix)

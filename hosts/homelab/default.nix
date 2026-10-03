@@ -34,6 +34,7 @@
     ../../modules/uptime-kuma.nix
     ../../modules/beszel.nix
     ../../modules/immich.nix
+    ../../modules/jenkins.nix
   ];
 
   networking.hostName = "homelab";

@@ -3,7 +3,6 @@
 let
   composeServices = [
     "nextcloud-compose"
-    "jenkins-compose"
   ];
 
   service = name: config.systemd.services.${name};
@@ -67,11 +66,6 @@ let
       "nextcloud-compose working directory"
       "/opt/nextcloud"
       (service "nextcloud-compose").serviceConfig.WorkingDirectory)
-
-    (helpers.assertEqual
-      "jenkins-compose working directory"
-      "/opt/jenkins"
-      (service "jenkins-compose").serviceConfig.WorkingDirectory)
   ];
 
   secretTests = [
@@ -81,17 +75,8 @@ let
       (service "nextcloud-compose").serviceConfig.EnvironmentFile)
   ];
 
-  noSecretEnvironmentTests = [
-
-    (helpers.assertEqual
-      "jenkins-compose has no EnvironmentFile"
-      null
-      (service "jenkins-compose").serviceConfig.EnvironmentFile or null)
-  ];
-
 in
 commonTests
 ++ storageTests
 ++ workingDirectoryTests
 ++ secretTests
-++ noSecretEnvironmentTests
