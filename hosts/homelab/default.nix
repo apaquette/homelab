@@ -30,6 +30,7 @@
     ../../modules/cockpit.nix
     ../../modules/system-tools.nix
     ../../modules/homepage.nix
+    ../../modules/ntfy.nix
   ];
 
   networking.hostName = "homelab";

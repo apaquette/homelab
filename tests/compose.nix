@@ -6,7 +6,6 @@ let
     "immich-compose"
     "beszel-compose"
     "uptime-kuma-compose"
-    "ntfy-compose"
     "jenkins-compose"
   ];
 
@@ -118,11 +117,6 @@ let
       (service "uptime-kuma-compose").serviceConfig.WorkingDirectory)
 
     (helpers.assertEqual
-      "ntfy-compose working directory"
-      "/opt/ntfy"
-      (service "ntfy-compose").serviceConfig.WorkingDirectory)
-
-    (helpers.assertEqual
       "jenkins-compose working directory"
       "/opt/jenkins"
       (service "jenkins-compose").serviceConfig.WorkingDirectory)
@@ -150,11 +144,6 @@ let
       "uptime-kuma-compose has no EnvironmentFile"
       null
       (service "uptime-kuma-compose").serviceConfig.EnvironmentFile or null)
-
-    (helpers.assertEqual
-      "ntfy-compose has no EnvironmentFile"
-      null
-      (service "ntfy-compose").serviceConfig.EnvironmentFile or null)
 
     (helpers.assertEqual
       "jenkins-compose has no EnvironmentFile"

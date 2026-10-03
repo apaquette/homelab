@@ -1,4 +1,4 @@
-{ config, pkgs, lib, helpers, unstable  ... }:
+{ config, pkgs, lib, helpers, unstable,  ... }:
 
 with helpers;
 

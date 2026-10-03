@@ -55,11 +55,6 @@
     config.systemd.services.uptime-kuma-compose.requires)
 
   (helpers.assertContains
-    "ntfy Compose requires Docker"
-    "docker.service"
-    config.systemd.services.ntfy-compose.requires)
-
-  (helpers.assertContains
     "Jenkins Compose requires Docker"
     "docker.service"
     config.systemd.services.jenkins-compose.requires)

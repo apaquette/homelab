@@ -1,4 +1,4 @@
-{ pkgs, lib, config }:
+{ pkgs, lib, config, unstable }:
 
 let
   helpers = import ./common.nix { inherit lib; };
@@ -25,7 +25,8 @@ let
     (import ./invariants.nix { inherit config helpers; })
     (import ./hardware-specific.nix { inherit config pkgs helpers; })
     (import ./cockpit.nix { inherit config helpers; })
-    (import ./homepage.nix { inherit config pkgs lib  helpers; })
+    (import ./homepage.nix { inherit config pkgs lib  helpers unstable; })
+    (import ./ntfy.nix { inherit config unstable helpers; })
 
     # Repository structure
     (helpers.assertPathExists "flake.nix" ../flake.nix)
@@ -57,6 +58,12 @@ let
   ];
 
   flattenedTests = lib.flatten tests;
+  testCount = lib.foldl'
+    (count: test:
+      builtins.seq test (count + 1)
+    )
+    0
+    flattenedTests;
 in
 pkgs.runCommand "homelab-configuration-tests" {} ''
   echo "All ${toString (builtins.length flattenedTests)} configuration assertions passed."

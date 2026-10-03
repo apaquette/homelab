@@ -12,35 +12,43 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, sops-nix, ... }:
-    let
-      system = "x86_64-linux";
+outputs = { self, nixpkgs, nixpkgs-unstable, sops-nix, ... }:
+  let
+    system = "x86_64-linux";
+    lib = nixpkgs.lib;
 
-      pkgs = import nixpkgs {
-        inherit system;
+    pkgs = import nixpkgs {
+      inherit system;
 
-        config.allowUnfreePredicate = pkg:
-          builtins.elem (nixpkgs.lib.getName pkg) [
-            "minecraft-server"
-          ];
-      };
-
-      unstable = import nixpkgs-unstable {
-        inherit system;
-      };
-    in
-    {
-      nixosConfigurations.homelab = nixpkgs.lib.nixosSystem {
-        inherit system;
-
-        specialArgs = {
-          inherit unstable;
-        };
-
-        modules = [
-          ./hosts/homelab
-          sops-nix.nixosModules.sops
+      config.allowUnfreePredicate = pkg:
+        builtins.elem (nixpkgs.lib.getName pkg) [
+          "minecraft-server"
         ];
-      };
     };
+
+    unstable = import nixpkgs-unstable {
+      inherit system;
+    };
+
+    nixosConfiguration = lib.nixosSystem {
+      inherit system;
+
+      specialArgs = {
+        inherit unstable;
+      };
+
+      modules = [
+        ./hosts/homelab
+        sops-nix.nixosModules.sops
+      ];
+    };
+  in
+  {
+    nixosConfigurations.homelab = nixosConfiguration;
+    checks.${system}.configuration =
+      import ./tests/configuration.nix {
+        inherit pkgs lib unstable;
+        config = nixosConfiguration.config;
+      };
+   };
 }
