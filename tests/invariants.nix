@@ -23,21 +23,11 @@
     "mnt-myraid.mount"
     config.systemd.services.nextcloud-compose.requires)
 
-  (helpers.assertContains
-    "Immich Compose requires myraid"
-    "mnt-myraid.mount"
-    config.systemd.services.immich-compose.requires)
-
   # Docker Compose services require Docker
   (helpers.assertContains
     "Nextcloud Compose requires Docker"
     "docker.service"
     config.systemd.services.nextcloud-compose.requires)
-
-  (helpers.assertContains
-    "Immich Compose requires Docker"
-    "docker.service"
-    config.systemd.services.immich-compose.requires)
 
   (helpers.assertContains
     "Jenkins Compose requires Docker"
@@ -61,8 +51,4 @@
     config.sops.templates."nextcloud.env".path
     config.systemd.services.nextcloud-compose.serviceConfig.EnvironmentFile)
 
-  (helpers.assertEqual
-    "Immich Compose SOPS template"
-    config.sops.templates."immich.env".path
-    config.systemd.services.immich-compose.serviceConfig.EnvironmentFile)
 ]

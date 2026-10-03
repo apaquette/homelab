@@ -29,6 +29,7 @@ let
     (import ./ntfy.nix { inherit config unstable helpers; })
     (import ./uptime-kuma.nix { inherit config pkgs lib helpers; })
     (import ./beszel.nix { inherit config pkgs unstable lib helpers; })
+    (import ./immich.nix { inherit config lib unstable helpers; })
 
     # Repository structure
     (helpers.assertPathExists "flake.nix" ../flake.nix)
