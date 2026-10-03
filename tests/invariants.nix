@@ -50,11 +50,6 @@
     config.systemd.services.beszel-compose.requires)
 
   (helpers.assertContains
-    "Uptime Kuma Compose requires Docker"
-    "docker.service"
-    config.systemd.services.uptime-kuma-compose.requires)
-
-  (helpers.assertContains
     "Jenkins Compose requires Docker"
     "docker.service"
     config.systemd.services.jenkins-compose.requires)

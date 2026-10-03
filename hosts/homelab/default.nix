@@ -31,6 +31,7 @@
     ../../modules/system-tools.nix
     ../../modules/homepage.nix
     ../../modules/ntfy.nix
+    ../../modules/uptime-kuma.nix
   ];
 
   networking.hostName = "homelab";

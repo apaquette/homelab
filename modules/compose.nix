@@ -84,29 +84,6 @@
     };
   };
 
-  systemd.services.uptime-kuma-compose = {
-    description = "Uptime Kuma Docker Compose stack";
-
-    wantedBy = [ "multi-user.target" ];
-
-    after = [
-      "docker.service"
-    ];
-
-    requires = [
-      "docker.service"
-    ];
-
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      WorkingDirectory = "/opt/uptime-kuma";
-
-      ExecStart = "${pkgs.docker-compose}/bin/docker-compose up -d";
-      ExecStop = "${pkgs.docker-compose}/bin/docker-compose down";
-    };
-  };
-
   systemd.services.jenkins-compose = {
     description = "Jenkins Docker Compose stack";
 

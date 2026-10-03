@@ -5,7 +5,6 @@ let
     "nextcloud-compose"
     "immich-compose"
     "beszel-compose"
-    "uptime-kuma-compose"
     "jenkins-compose"
   ];
 
@@ -112,11 +111,6 @@ let
       (service "beszel-compose").serviceConfig.WorkingDirectory)
 
     (helpers.assertEqual
-      "uptime-kuma-compose working directory"
-      "/opt/uptime-kuma"
-      (service "uptime-kuma-compose").serviceConfig.WorkingDirectory)
-
-    (helpers.assertEqual
       "jenkins-compose working directory"
       "/opt/jenkins"
       (service "jenkins-compose").serviceConfig.WorkingDirectory)
@@ -140,10 +134,6 @@ let
   ];
 
   noSecretEnvironmentTests = [
-    (helpers.assertEqual
-      "uptime-kuma-compose has no EnvironmentFile"
-      null
-      (service "uptime-kuma-compose").serviceConfig.EnvironmentFile or null)
 
     (helpers.assertEqual
       "jenkins-compose has no EnvironmentFile"
