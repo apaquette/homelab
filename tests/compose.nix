@@ -4,7 +4,6 @@ let
   composeServices = [
     "nextcloud-compose"
     "immich-compose"
-    "beszel-compose"
     "jenkins-compose"
   ];
 
@@ -72,26 +71,6 @@ let
       "immich-compose requires"
       "mnt-myraid.mount"
       (service "immich-compose").requires)
-
-    (helpers.assertContains
-      "beszel-compose after"
-      "mnt-backup.mount"
-      (service "beszel-compose").after)
-
-    (helpers.assertContains
-      "beszel-compose after"
-      "mnt-myraid.mount"
-      (service "beszel-compose").after)
-
-    (helpers.assertContains
-      "beszel-compose requires"
-      "mnt-backup.mount"
-      (service "beszel-compose").requires)
-
-    (helpers.assertContains
-      "beszel-compose requires"
-      "mnt-myraid.mount"
-      (service "beszel-compose").requires)
   ];
 
   workingDirectoryTests = [
@@ -104,11 +83,6 @@ let
       "immich-compose working directory"
       "/opt/immich"
       (service "immich-compose").serviceConfig.WorkingDirectory)
-
-    (helpers.assertEqual
-      "beszel-compose working directory"
-      "/opt/beszel"
-      (service "beszel-compose").serviceConfig.WorkingDirectory)
 
     (helpers.assertEqual
       "jenkins-compose working directory"
@@ -126,11 +100,6 @@ let
       "immich-compose EnvironmentFile"
       config.sops.templates."immich.env".path
       (service "immich-compose").serviceConfig.EnvironmentFile)
-
-    (helpers.assertEqual
-      "beszel-compose EnvironmentFile"
-      config.sops.templates."beszel.env".path
-      (service "beszel-compose").serviceConfig.EnvironmentFile)
   ];
 
   noSecretEnvironmentTests = [

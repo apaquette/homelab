@@ -28,11 +28,6 @@
     "mnt-myraid.mount"
     config.systemd.services.immich-compose.requires)
 
-  (helpers.assertContains
-    "Beszel Compose requires backup"
-    "mnt-backup.mount"
-    config.systemd.services.beszel-compose.requires)
-
   # Docker Compose services require Docker
   (helpers.assertContains
     "Nextcloud Compose requires Docker"
@@ -43,11 +38,6 @@
     "Immich Compose requires Docker"
     "docker.service"
     config.systemd.services.immich-compose.requires)
-
-  (helpers.assertContains
-    "Beszel Compose requires Docker"
-    "docker.service"
-    config.systemd.services.beszel-compose.requires)
 
   (helpers.assertContains
     "Jenkins Compose requires Docker"
@@ -75,9 +65,4 @@
     "Immich Compose SOPS template"
     config.sops.templates."immich.env".path
     config.systemd.services.immich-compose.serviceConfig.EnvironmentFile)
-
-  (helpers.assertEqual
-    "Beszel Compose SOPS template"
-    config.sops.templates."beszel.env".path
-    config.systemd.services.beszel-compose.serviceConfig.EnvironmentFile)
 ]

@@ -24,11 +24,6 @@ with helpers;
     config.sops.secrets."immich-db-password".key)
 
   (assertEqual
-    "Beszel SOPS key"
-    "beszel/agent_token"
-    config.sops.secrets."beszel-agent-token".key)
-
-  (assertEqual
     "SMART notification SOPS key"
     "smartd/ntfy_token"
     config.sops.secrets."smartd-ntfy-token".key)

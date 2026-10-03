@@ -13,8 +13,13 @@
     key = "immich/db_password";
   };
 
-  sops.secrets."beszel-agent-token" = {
-    key = "beszel/agent_token";
+  sops.templates."beszel-agent.env" = {
+    content = ''
+    TOKEN=${config.sops.placeholder."beszel-agent-token"}
+    '';
+    owner = "root";
+    group = "root";
+    mode = "0400";
   };
 
   sops.secrets."smartd-ntfy-token" = {
@@ -43,6 +48,10 @@
 
   sops.secrets."homepage-immich-api-key" = {
     key = "homepage/immich_api_key";
+  };
+
+  sops.secrets."beszel-agent-token" = {
+    key = "beszel/agent_token";
   };
 
   environment.etc."smartd-ntfy-token".source =
