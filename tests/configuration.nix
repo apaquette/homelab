@@ -14,7 +14,6 @@ let
     (import ./media-services.nix { inherit config helpers; })
     (import ./seerr.nix { inherit config pkgs helpers; })
     (import ./minecraft.nix { inherit config pkgs helpers; })
-    (import ./compose.nix { inherit config pkgs helpers; })
     (import ./sops.nix { inherit config helpers; })
     (import ./monitoring.nix { inherit config helpers; })
     (import ./backups.nix { inherit config helpers; })
@@ -31,6 +30,7 @@ let
     (import ./beszel.nix { inherit config pkgs unstable lib helpers; })
     (import ./immich.nix { inherit config lib unstable helpers; })
     (import ./jenkins.nix { inherit config lib; })
+    (import ./nextcloud.nix { inherit config pkgs lib helpers; })
 
     # Repository structure
     (helpers.assertPathExists "flake.nix" ../flake.nix)

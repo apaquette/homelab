@@ -21,7 +21,6 @@
     ../../modules/seerr.nix
     ../../modules/minecraft.nix
     ../../modules/sops.nix
-    ../../modules/compose.nix
     ../../modules/compatibility.nix
     ../../modules/scripts.nix
     ../../modules/monitoring.nix
@@ -35,6 +34,7 @@
     ../../modules/beszel.nix
     ../../modules/immich.nix
     ../../modules/jenkins.nix
+    ../../modules/nextcloud.nix
   ];
 
   networking.hostName = "homelab";

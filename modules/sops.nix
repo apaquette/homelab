@@ -53,6 +53,17 @@
   sops.secrets."beszel-agent-token" = {
     key = "beszel/agent_token";
   };
+sops.secrets."nextcloud-instanceid" = {
+  key = "nextcloud/instanceid";
+};
+
+sops.secrets."nextcloud-passwordsalt" = {
+  key = "nextcloud/passwordsalt";
+};
+
+sops.secrets."nextcloud-secret" = {
+  key = "nextcloud/secret";
+};
 
   environment.etc."smartd-ntfy-token".source =
     config.sops.secrets."smartd-ntfy-token".path;
@@ -101,4 +112,11 @@
     group = "root";
     mode = "0400";
   };
+sops.templates."nextcloud-secret.json" = {
+  content = builtins.toJSON {
+    instanceid = config.sops.placeholder."nextcloud-instanceid";
+    passwordsalt = config.sops.placeholder."nextcloud-passwordsalt";
+    secret = config.sops.placeholder."nextcloud-secret";
+  };
+};
 }
