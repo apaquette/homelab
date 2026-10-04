@@ -62,6 +62,7 @@
     extraGroups = [
       "video"
       "render"
+      "apaquette"
     ];
   };
 

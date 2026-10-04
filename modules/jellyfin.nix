@@ -20,9 +20,16 @@
   systemd.services.jellyfin = {
     after = [ "mnt-myraid.mount" ];
     requires = [ "mnt-myraid.mount" ];
+    environment = {
+        LIBVA_DRIVER_NAME = "iHD";
+    };
   };
-
-  systemd.services.jellyfin.environment = {
-    LIBVA_DRIVER_NAME = "iHD";
-  };
+  systemd.tmpfiles.rules = [
+    "Z /var/lib/jellyfin/plugins 0755 jellyfin jellyfin -"
+    "Z /var/lib/jellyfin/metadata 0755 jellyfin jellyfin -"
+    "Z /var/lib/jellyfin/root 0755 jellyfin jellyfin -"
+    "Z /var/cache/jellyfin/images 0755 jellyfin jellyfin -"
+    "Z /var/cache/jellyfin/omdb 0755 jellyfin jellyfin -"
+    "Z /var/cache/jellyfin/transcodes 0755 jellyfin jellyfin -"
+  ];
 }
