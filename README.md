@@ -201,6 +201,24 @@ Services use dedicated users where supported by their NixOS modules, while secre
 
 Configuration changes are validated with the Nix test suite and a build before being activated on the host.
 
+
+## Roadmap
+
+The v1.0 migration establishes the production baseline. Future development is focused on improving recovery, automation, observability, and infrastructure resilience.
+
+| Version  | Focus                                                               | Status   |
+| -------- | ------------------------------------------------------------------- | -------- |
+| **v1.0** | Debian → NixOS migration, native services, sops-nix, Restic backups | Complete |
+| **v1.1** | Off-site backups, automated restore testing, disaster recovery      | Planned  |
+| **v1.2** | CI, NixOS VM testing, deployment validation                         | Planned  |
+| **v1.3** | Backup observability, SMART monitoring, recovery alerting           | Planned  |
+| **v2.0** | Second host, WireGuard, selective infrastructure redundancy         | Future   |
+
+The highest-priority next step is to establish **independent off-site backups and automated restore testing**. This shifts the project from having a tested backup mechanism to having a tested recovery strategy.
+
+See [`docs/roadmap.md`](docs/roadmap.md) for the detailed roadmap and planned engineering work.
+
+
 ## Documentation
 
 * [Architecture](docs/architecture.md)
