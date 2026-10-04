@@ -1,5 +1,15 @@
-{ ... }:
-
+{ pkgs,... }:
+let
+service-paths = with pkgs; [
+  bash
+  coreutils
+  curl
+  gawk
+  mdadm
+  smartmontools
+  util-linux
+];
+in
 {
 
   systemd.services.homelab-disk-health = {
@@ -13,6 +23,8 @@
       "local-fs.target"
     ];
 
+    path = service-paths;
+
     serviceConfig = {
       Type = "oneshot";
 
@@ -22,7 +34,6 @@
 
   systemd.timers.homelab-disk-health = {
     description = "Periodic homelab disk health check";
-
     wantedBy = [
       "timers.target"
     ];
@@ -36,6 +47,7 @@
 
   systemd.services.homelab-storage-health = {
     description = "Check homelab RAID and storage health";
+    path = service-paths;
 
     after = [
       "local-fs.target"
@@ -72,7 +84,7 @@
 
   systemd.services."homelab-backup-notify@" = {
     description = "Notify ntfy about failed backup service %i";
-
+    path = service-paths;
     serviceConfig = {
       Type = "oneshot";
 
@@ -82,7 +94,7 @@
 
   systemd.services."homelab-storage-notify@" = {
     description = "Notify ntfy about failed storage health service %i";
-
+    path = service-paths;
     serviceConfig = {
       Type = "oneshot";
 
