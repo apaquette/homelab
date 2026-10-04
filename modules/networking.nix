@@ -48,22 +48,6 @@
         67
       ];
     };
-
-extraCommands = ''
-  # Allow Docker containers to use the host's DNS resolver.
-  iptables -A nixos-fw -i br-+ -p tcp --dport 53 -j nixos-fw-accept
-  iptables -A nixos-fw -i br-+ -p udp --dport 53 -j nixos-fw-accept
-
-  # Allow Docker containers to reach Caddy on the host.
-  iptables -A nixos-fw -i br-+ -p tcp --dport 80 -j nixos-fw-accept
-  iptables -A nixos-fw -i br-+ -p tcp --dport 443 -j nixos-fw-accept
-
-  # Allow Docker containers to reach the Minecraft gameplay port.
-  iptables -A nixos-fw -i br-+ -p tcp --dport 4300 -j nixos-fw-accept
-
-  # Allow Docker containers to query the Minecraft server.
-  iptables -A nixos-fw -i br-+ -p udp --dport 25565 -j nixos-fw-accept
-'';
-};
+  };
 }
 

@@ -7,7 +7,6 @@ let
     (import ./networking.nix { inherit config helpers; })
     (import ./storage.nix { inherit config helpers; })
     (import ./users.nix { inherit config helpers; })
-    (import ./docker.nix { inherit config helpers; })
     (import ./caddy.nix { inherit config helpers; })
     (import ./dnsmasq.nix { inherit config helpers; })
     (import ./jellyfin.nix { inherit config pkgs helpers; })
@@ -39,7 +38,6 @@ let
 
     # Scripts
     (helpers.assertPathExists "homelab-backup-ntfy script" ../scripts/homelab-backup-ntfy)
-    (helpers.assertPathExists "homelab-container-health script" ../scripts/homelab-container-health)
     (helpers.assertPathExists "homelab-disk-health script" ../scripts/homelab-disk-health)
     (helpers.assertPathExists "homelab-storage-health script" ../scripts/homelab-storage-health)
     (helpers.assertPathExists "homelab-storage-ntfy script" ../scripts/homelab-storage-ntfy)

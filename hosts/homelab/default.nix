@@ -13,7 +13,6 @@
     ./users.nix
     ../../modules/networking.nix
     ../../modules/storage.nix
-    ../../modules/docker.nix
     ../../modules/caddy.nix
     ../../modules/dnsmasq.nix
     ../../modules/jellyfin.nix

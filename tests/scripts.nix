@@ -3,7 +3,6 @@
 let
   scripts = [
     "homelab-backup-ntfy"
-    "homelab-container-health"
     "homelab-disk-health"
     "homelab-storage-health"
     "homelab-storage-ntfy"

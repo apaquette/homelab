@@ -10,7 +10,6 @@
       "wheel"
       "video"
       "users"
-      "docker"
     ];
   };
 

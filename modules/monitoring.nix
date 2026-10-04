@@ -1,37 +1,6 @@
 { ... }:
 
 {
-  systemd.services.homelab-container-health = {
-    description = "Check Docker container restart activity";
-
-    after = [
-      "docker.service"
-    ];
-
-    requires = [
-      "docker.service"
-    ];
-
-    serviceConfig = {
-      Type = "oneshot";
-
-      ExecStart = "/etc/homelab/scripts/homelab-container-health";
-    };
-  };
-
-  systemd.timers.homelab-container-health = {
-    description = "Periodic Docker container restart check";
-
-    wantedBy = [
-      "timers.target"
-    ];
-
-    timerConfig = {
-      OnBootSec = "10min";
-      OnUnitActiveSec = "15min";
-      Persistent = true;
-    };
-  };
 
   systemd.services.homelab-disk-health = {
     description = "Check homelab disk space and inode usage";

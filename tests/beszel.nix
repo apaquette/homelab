@@ -144,11 +144,6 @@ with helpers;
     config.systemd.services.beszel-agent.after)
 
   (assertContains
-    "beszel agent Docker group"
-    "docker"
-    config.systemd.services.beszel-agent.serviceConfig.SupplementaryGroups)
-
-  (assertContains
     "beszel agent disk group"
     "disk"
     config.systemd.services.beszel-agent.serviceConfig.SupplementaryGroups)

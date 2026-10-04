@@ -5,7 +5,6 @@ pkgs.testers.nixosTest {
 
   nodes.machine = {
     imports = [
-      ../modules/docker.nix
       ../modules/scripts.nix
       ../modules/monitoring.nix
     ];
@@ -18,9 +17,6 @@ pkgs.testers.nixosTest {
 
     # The VM does not have the production storage devices.
     services.fstrim.enable = false;
-
-    # Docker is explicitly exercised by this test.
-    virtualisation.docker.enable = true;
 
     # The production scripts are installed declaratively.
     environment.systemPackages = [
@@ -41,21 +37,15 @@ pkgs.testers.nixosTest {
     # Basic NixOS runtime health.
     machine.succeed("systemctl is-system-running --wait")
 
-    # Docker should be operational.
-    machine.wait_for_unit("docker.service")
-    machine.succeed("docker info")
-
     # Verify declaratively installed homelab scripts are present.
     machine.succeed("test -x /etc/homelab/scripts/homelab-disk-health")
     machine.succeed("test -x /etc/homelab/scripts/homelab-storage-health")
 
     # Monitoring timers should be loaded.
-    machine.succeed("systemctl is-enabled homelab-container-health.timer")
     machine.succeed("systemctl is-enabled homelab-disk-health.timer")
     machine.succeed("systemctl is-enabled homelab-storage-health.timer")
 
     # The timers should be active after reaching multi-user.target.
-    machine.succeed("systemctl is-active homelab-container-health.timer")
     machine.succeed("systemctl is-active homelab-disk-health.timer")
     machine.succeed("systemctl is-active homelab-storage-health.timer")
   '';

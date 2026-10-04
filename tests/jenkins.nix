@@ -54,10 +54,5 @@ in
       assertion = config.users.groups.jenkins.gid != null;
       message = "The native Jenkins group must exist";
     }
-
-    {
-      assertion = !(config.systemd.services ? jenkins-compose);
-      message = "The obsolete Jenkins Docker Compose service must not exist";
-    }
   ];
 }

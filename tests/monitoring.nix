@@ -4,11 +4,6 @@ with helpers;
 
 [
   (assertEqual
-    "container health timer interval"
-    "15min"
-    config.systemd.timers.homelab-container-health.timerConfig.OnUnitActiveSec)
-
-  (assertEqual
     "disk health timer interval"
     "15min"
     config.systemd.timers.homelab-disk-health.timerConfig.OnUnitActiveSec)
