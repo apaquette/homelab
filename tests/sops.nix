@@ -27,4 +27,8 @@ with helpers;
     "SMART notification SOPS key"
     "smartd/ntfy_token"
     config.sops.secrets."smartd-ntfy-token".key)
+(helpers.assertEqual
+  "Restic repository password SOPS key"
+  "restic/repository_password"
+  config.sops.secrets."restic-repository-password".key)
 ]

@@ -16,7 +16,7 @@ let
     (import ./minecraft.nix { inherit config pkgs helpers; })
     (import ./sops.nix { inherit config helpers; })
     (import ./monitoring.nix { inherit config helpers; })
-    (import ./backups.nix { inherit config helpers; })
+    (import ./backups.nix { inherit config lib pkgs helpers; })
     (import ./smartd.nix { inherit config helpers; })
     (import ./compatibility.nix { inherit config pkgs helpers; })
     (import ./scripts.nix { inherit config helpers; })
@@ -39,14 +39,11 @@ let
     (helpers.assertPathExists "users configuration" ../hosts/homelab/users.nix)
 
     # Scripts
-    (helpers.assertPathExists "homelab-app-backup script" ../scripts/homelab-app-backup)
     (helpers.assertPathExists "homelab-backup-ntfy script" ../scripts/homelab-backup-ntfy)
     (helpers.assertPathExists "homelab-container-health script" ../scripts/homelab-container-health)
     (helpers.assertPathExists "homelab-disk-health script" ../scripts/homelab-disk-health)
     (helpers.assertPathExists "homelab-storage-health script" ../scripts/homelab-storage-health)
     (helpers.assertPathExists "homelab-storage-ntfy script" ../scripts/homelab-storage-ntfy)
-    (helpers.assertPathExists "immich-backup script" ../scripts/immich-backup)
-    (helpers.assertPathExists "nextcloud-backup script" ../scripts/nextcloud-backup.sh)
 
     # Compatibility
     (helpers.assertEqual

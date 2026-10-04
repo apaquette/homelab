@@ -64,6 +64,12 @@ sops.secrets."nextcloud-passwordsalt" = {
 sops.secrets."nextcloud-secret" = {
   key = "nextcloud/secret";
 };
+sops.secrets."restic-repository-password" = {
+  key = "restic/repository_password";
+  owner = "root";
+  group = "root";
+  mode = "0400";
+};
 
   environment.etc."smartd-ntfy-token".source =
     config.sops.secrets."smartd-ntfy-token".path;

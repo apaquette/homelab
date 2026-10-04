@@ -18,13 +18,21 @@
     config.systemd.services.qbittorrent.requires)
 
   # Backup failure notification handlers
-  (helpers.assertContains
-    "application backup notification handler"
-    "homelab-backup-notify@%p.service"
-    config.systemd.services.homelab-app-backup.onFailure)
-
-  (helpers.assertContains
-    "storage health notification handler"
-    "homelab-storage-notify@%p.service"
-    config.systemd.services.homelab-storage-health.onFailure)
+builtins.all
+  (
+    name:
+    builtins.elem
+      "homelab-backup-notify@%p.service"
+      config.systemd.services."restic-backups-${name}".onFailure
+  )
+  [
+    "nextcloud"
+    "immich"
+    "minecraft"
+    "jellyfin"
+    "sonarr"
+    "radarr"
+    "beszel"
+    "ntfy"
+  ]
 ]

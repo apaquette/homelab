@@ -1,111 +1,484 @@
-{ ... }:
 
-{
-  systemd.services.homelab-app-backup = {
-    description = "Backup Sonarr, Radarr, Jellyfin, Jenkins and Homepage application data";
+{ config, lib, pkgs, ... }:
 
-    after = [
-      "local-fs.target"
-      "mnt-backup.mount"
-    ];
+let
+  repository = "/mnt/backup/Restic/homelab";
+  passwordFile = config.sops.secrets."restic-repository-password".path;
+  immichUploadLocation = builtins.dirOf config.services.immich.mediaLocation;
 
-    requires = [
-      "mnt-backup.mount"
-    ];
+  backupOrder = [
+    "nextcloud"
+    "immich"
+    "minecraft"
+    "jellyfin"
+    "sonarr"
+    "radarr"
+    "beszel"
+    "ntfy"
+  ];
 
-    onFailure = [
-      "homelab-backup-notify@%p.service"
-    ];
+  mkServiceBackup =
+    {
+      name,
+      schedule,
+      paths,
+      service,
+      exclude ? [ ],
+    }:
+    let
+      stateFile = "/run/restic-backups-${name}/service-was-active";
+    in
+    {
+      inherit
+        paths
+        exclude
+        repository
+        passwordFile
+        ;
 
-    serviceConfig = {
-      Type = "oneshot";
+      initialize = true;
+      user = "root";
 
-      ExecStart = "/etc/homelab/scripts/homelab-app-backup";
+      extraBackupArgs = [
+        "--tag"
+        name
+      ];
+
+      timerConfig = {
+        OnCalendar = schedule;
+        Persistent = true;
+      };
+
+      backupPrepareCommand = ''
+        set -euo pipefail
+
+        state=${lib.escapeShellArg stateFile}
+
+        ${pkgs.coreutils}/bin/rm -f "$state"
+
+        if ${pkgs.systemd}/bin/systemctl is-active --quiet ${service}; then
+          ${pkgs.coreutils}/bin/touch "$state"
+          ${pkgs.systemd}/bin/systemctl stop ${service}
+        fi
+      '';
+
+      backupCleanupCommand = ''
+        set -euo pipefail
+
+        state=${lib.escapeShellArg stateFile}
+
+        if ${pkgs.coreutils}/bin/test -f "$state"; then
+          ${pkgs.systemd}/bin/systemctl start ${service}
+          ${pkgs.coreutils}/bin/rm -f "$state"
+        fi
+      '';
     };
-  };
 
-  systemd.timers.homelab-app-backup = {
-    description = "Daily application backup";
+  immichBackup = {
+    repository = repository;
+    passwordFile = passwordFile;
+    initialize = true;
+    user = "root";
 
-    wantedBy = [
-      "timers.target"
+    paths = [
+      immichUploadLocation
+      "/run/restic-backups-immich/immich.dump"
+    ];
+
+    extraBackupArgs = [
+      "--tag"
+      "immich"
     ];
 
     timerConfig = {
-      OnCalendar = "*-*-* 04:00:00";
-      RandomizedDelaySec = "30m";
+      OnCalendar = "*-*-* 03:00:00";
       Persistent = true;
     };
+
+    backupPrepareCommand = ''
+      set -euo pipefail
+
+      state="/run/restic-backups-immich/service-was-active"
+      dump="/run/restic-backups-immich/immich.dump"
+
+      ${pkgs.coreutils}/bin/rm -f "$state" "$dump"
+
+      if ${pkgs.systemd}/bin/systemctl is-active --quiet immich-server.service; then
+        ${pkgs.coreutils}/bin/touch "$state"
+        ${pkgs.systemd}/bin/systemctl stop immich-server.service
+      fi
+
+      ${pkgs.util-linux}/bin/runuser -u postgres -- \
+        ${pkgs.postgresql_17}/bin/pg_dump \
+          --format=custom \
+          --dbname=${lib.escapeShellArg config.services.immich.database.name} \
+          > "$dump"
+
+      ${pkgs.postgresql_17}/bin/pg_restore --list "$dump" > /dev/null
+    '';
+
+    backupCleanupCommand = ''
+      set -euo pipefail
+
+      exit_code=0
+
+      ${pkgs.coreutils}/bin/rm -f \
+        /run/restic-backups-immich/immich.dump \
+        || exit_code=1
+
+      if ${pkgs.coreutils}/bin/test -f \
+        /run/restic-backups-immich/service-was-active
+      then
+        ${pkgs.systemd}/bin/systemctl start immich-server.service \
+          || exit_code=1
+
+        ${pkgs.coreutils}/bin/rm -f \
+          /run/restic-backups-immich/service-was-active \
+          || exit_code=1
+      fi
+
+      exit "$exit_code"
+    '';
   };
 
-  systemd.services.nextcloud-backup = {
-    description = "Nextcloud Backup";
+  nextcloudBackup = {
+    repository = repository;
+    passwordFile = passwordFile;
+    initialize = true;
+    user = "root";
 
-    after = [
-      "docker.service"
-      "mnt-backup.mount"
-      "mnt-myraid.mount"
+    paths = [
+      config.services.nextcloud.home
+      config.services.nextcloud.settings.datadirectory
+      "/run/restic-backups-nextcloud/nextcloud.dump"
     ];
 
-    requires = [
-      "docker.service"
-      "mnt-backup.mount"
-      "mnt-myraid.mount"
-    ];
-
-    serviceConfig = {
-      Type = "oneshot";
-
-      ExecStart = "/etc/homelab/scripts/nextcloud-backup.sh";
-    };
-  };
-
-  systemd.timers.nextcloud-backup = {
-    description = "Daily Nextcloud Backup";
-
-    wantedBy = [
-      "timers.target"
+    extraBackupArgs = [
+      "--tag"
+      "nextcloud"
     ];
 
     timerConfig = {
       OnCalendar = "*-*-* 02:30:00";
       Persistent = true;
     };
+
+    backupPrepareCommand = ''
+      set -euo pipefail
+
+      maintenance_state="/run/restic-backups-nextcloud/maintenance-enabled-by-backup"
+      cron_service_state="/run/restic-backups-nextcloud/cron-service-was-active"
+      cron_timer_state="/run/restic-backups-nextcloud/cron-timer-was-active"
+      dump="/run/restic-backups-nextcloud/nextcloud.dump"
+
+      ${pkgs.coreutils}/bin/rm -f \
+        "$maintenance_state" \
+        "$cron_service_state" \
+        "$cron_timer_state" \
+        "$dump"
+
+      status_json="$(
+        /run/current-system/sw/bin/nextcloud-occ \
+          status \
+          --output=json
+      )"
+
+      if [[ "$status_json" == *'"maintenance":true'* ]] ||
+         [[ "$status_json" == *'"maintenance": true'* ]]
+      then
+        :
+      else
+        ${pkgs.coreutils}/bin/touch "$maintenance_state"
+
+        /run/current-system/sw/bin/nextcloud-occ \
+          maintenance:mode \
+          --on
+      fi
+
+      if ${pkgs.systemd}/bin/systemctl is-active --quiet nextcloud-cron.timer; then
+        ${pkgs.coreutils}/bin/touch "$cron_timer_state"
+        ${pkgs.systemd}/bin/systemctl stop nextcloud-cron.timer
+      fi
+
+      if ${pkgs.systemd}/bin/systemctl is-active --quiet nextcloud-cron.service; then
+        ${pkgs.coreutils}/bin/touch "$cron_service_state"
+        ${pkgs.systemd}/bin/systemctl stop nextcloud-cron.service
+      fi
+
+      ${pkgs.util-linux}/bin/runuser -u postgres -- \
+        ${pkgs.postgresql_17}/bin/pg_dump \
+          --format=custom \
+          --dbname=${lib.escapeShellArg config.services.nextcloud.config.dbname} \
+          > "$dump"
+
+      ${pkgs.postgresql_17}/bin/pg_restore --list "$dump" > /dev/null
+    '';
+
+    backupCleanupCommand = ''
+      set -euo pipefail
+
+      exit_code=0
+
+      ${pkgs.coreutils}/bin/rm -f \
+        /run/restic-backups-nextcloud/nextcloud.dump \
+        || exit_code=1
+
+      if ${pkgs.coreutils}/bin/test -f \
+        /run/restic-backups-nextcloud/maintenance-enabled-by-backup
+      then
+        /run/current-system/sw/bin/nextcloud-occ \
+          maintenance:mode \
+          --off \
+          || exit_code=1
+
+        ${pkgs.coreutils}/bin/rm -f \
+          /run/restic-backups-nextcloud/maintenance-enabled-by-backup \
+          || exit_code=1
+      fi
+
+      if ${pkgs.coreutils}/bin/test -f \
+        /run/restic-backups-nextcloud/cron-service-was-active
+      then
+        ${pkgs.systemd}/bin/systemctl start nextcloud-cron.service \
+          || exit_code=1
+
+        ${pkgs.coreutils}/bin/rm -f \
+          /run/restic-backups-nextcloud/cron-service-was-active \
+          || exit_code=1
+      fi
+
+      if ${pkgs.coreutils}/bin/test -f \
+        /run/restic-backups-nextcloud/cron-timer-was-active
+      then
+        ${pkgs.systemd}/bin/systemctl start nextcloud-cron.timer \
+          || exit_code=1
+
+        ${pkgs.coreutils}/bin/rm -f \
+          /run/restic-backups-nextcloud/cron-timer-was-active \
+          || exit_code=1
+      fi
+
+      exit "$exit_code"
+    '';
   };
 
-  systemd.services.immich-backup = {
-    description = "Immich backup";
+  simpleBackups = {
+    minecraft = mkServiceBackup {
+      name = "minecraft";
+      schedule = "*-*-* 03:30:00";
+      paths = [
+        config.services.minecraft-server.dataDir
+      ];
+      service = "minecraft-server.service";
+    };
 
-    after = [
-      "docker.service"
-      "mnt-backup.mount"
-      "mnt-myraid.mount"
-    ];
+    jellyfin = mkServiceBackup {
+      name = "jellyfin";
+      schedule = "*-*-* 04:00:00";
+      paths = [
+        config.services.jellyfin.dataDir
+      ];
+      service = "jellyfin.service";
+      exclude = [
+        config.services.jellyfin.logDir
+      ];
+    };
 
-    requires = [
-      "docker.service"
-      "mnt-backup.mount"
-      "mnt-myraid.mount"
-    ];
+    sonarr = mkServiceBackup {
+      name = "sonarr";
+      schedule = "*-*-* 04:15:00";
+      paths = [
+        config.services.sonarr.dataDir
+      ];
+      service = "sonarr.service";
+    };
 
-    serviceConfig = {
-      Type = "oneshot";
+    radarr = mkServiceBackup {
+      name = "radarr";
+      schedule = "*-*-* 04:30:00";
+      paths = [
+        config.services.radarr.dataDir
+      ];
+      service = "radarr.service";
+    };
 
-      ExecStart = "/etc/homelab/scripts/immich-backup";
+    beszel = mkServiceBackup {
+      name = "beszel";
+      schedule = "*-*-* 04:45:00";
+      paths = [
+        "/var/lib/private/beszel-hub"
+      ];
+      service = "beszel-hub.service";
+    };
+
+    ntfy = mkServiceBackup {
+      name = "ntfy";
+      schedule = "*-*-* 05:00:00";
+      paths = [
+        "/var/lib/private/ntfy-sh"
+      ];
+      service = "ntfy-sh.service";
     };
   };
 
-  systemd.timers.immich-backup = {
-    description = "Daily Immich backup";
-
-    wantedBy = [
-      "timers.target"
+  mountPaths = {
+    immich = [
+      immichUploadLocation
     ];
 
-    timerConfig = {
-      OnCalendar = "*-*-* 03:00:00";
-      RandomizedDelaySec = "30m";
-      Persistent = true;
-    };
+    nextcloud = [
+      config.services.nextcloud.home
+      config.services.nextcloud.settings.datadirectory
+    ];
+
+    minecraft = [
+      config.services.minecraft-server.dataDir
+    ];
+
+    jellyfin = [
+      config.services.jellyfin.dataDir
+    ];
+
+    sonarr = [
+      config.services.sonarr.dataDir
+    ];
+
+    radarr = [
+      config.services.radarr.dataDir
+    ];
+
+    beszel = [
+      "/var/lib/private/beszel-hub"
+    ];
+
+    ntfy = [
+      "/var/lib/private/ntfy-sh"
+    ];
+
+    maintenance = [ ];
+    check = [ ];
   };
+
+  databaseBackups = [
+    "nextcloud"
+    "immich"
+  ];
+
+  appBackupSystemdOverrides =
+    lib.listToAttrs (
+      lib.imap0
+        (
+          index: name:
+          let
+            previous =
+              if index == 0
+              then null
+              else builtins.elemAt backupOrder (index - 1);
+          in
+          {
+            name = "restic-backups-${name}";
+
+            value = {
+              after =
+                lib.optional
+                  (previous != null)
+                  "restic-backups-${previous}.service"
+                ++ lib.optional
+                  (builtins.elem name databaseBackups)
+                  "postgresql.service";
+
+              requires =
+                lib.optional
+                  (builtins.elem name databaseBackups)
+                  "postgresql.service";
+
+              onFailure = [
+                "homelab-backup-notify@%p.service"
+              ];
+
+              unitConfig.RequiresMountsFor =
+                [ repository ] ++ mountPaths.${name};
+            };
+          }
+        )
+        backupOrder
+    )
+    // {
+      "restic-backups-maintenance" = {
+        after =
+          map
+            (name: "restic-backups-${name}.service")
+            backupOrder;
+
+        onFailure = [
+          "homelab-backup-notify@%p.service"
+        ];
+
+        unitConfig.RequiresMountsFor = [
+          repository
+        ];
+      };
+
+      "restic-backups-check" = {
+        after = [
+          "restic-backups-maintenance.service"
+        ];
+
+        onFailure = [
+          "homelab-backup-notify@%p.service"
+        ];
+
+        unitConfig.RequiresMountsFor = [
+          repository
+        ];
+      };
+    };
+
+in
+{
+  services.restic.backups =
+    simpleBackups
+    // {
+      immich = immichBackup;
+      nextcloud = nextcloudBackup;
+
+      maintenance = {
+        repository = repository;
+        passwordFile = passwordFile;
+        initialize = true;
+        user = "root";
+
+        paths = [ ];
+
+        timerConfig = {
+          OnCalendar = "*-*-* 05:30:00";
+          Persistent = true;
+        };
+
+   pruneOpts = [
+    "--group-by host,tags"
+    "--keep-daily 14"
+    "--keep-weekly 8"
+    "--keep-monthly 6"
+  ];
+      };
+
+      check = {
+        repository = repository;
+        passwordFile = passwordFile;
+        initialize = true;
+        user = "root";
+
+        paths = [ ];
+
+        timerConfig = {
+          OnCalendar = "Sun *-*-* 06:00:00";
+          Persistent = true;
+        };
+
+        runCheck = true;
+      };
+    };
+
+  systemd.services = appBackupSystemdOverrides;
 }

@@ -22,9 +22,21 @@ with helpers;
     "storage health failure notification"
     [ "homelab-storage-notify@%p.service" ]
     config.systemd.services.homelab-storage-health.onFailure)
-
-  (assertEqual
-    "backup failure notification"
-    [ "homelab-backup-notify@%p.service" ]
-    config.systemd.services.homelab-app-backup.onFailure)
+builtins.all
+  (
+    name:
+    builtins.elem
+      "homelab-backup-notify@%p.service"
+      config.systemd.services."restic-backups-${name}".onFailure
+  )
+  [
+    "nextcloud"
+    "immich"
+    "minecraft"
+    "jellyfin"
+    "sonarr"
+    "radarr"
+    "beszel"
+    "ntfy"
+  ]
 ]
