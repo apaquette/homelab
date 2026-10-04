@@ -223,3 +223,7 @@ See [`docs/roadmap.md`](docs/roadmap.md) for the detailed roadmap and planned en
 
 * [Architecture](docs/architecture.md)
 * [Backup and Restore](docs/backup-and-restore.md)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
