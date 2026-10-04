@@ -1,72 +1,207 @@
-# Homelab
+# Homelab Infrastructure
 
-Declarative NixOS configuration for my self-hosted homelab.
+Declarative infrastructure for a self-hosted homelab, built around NixOS, systemd, Caddy, PostgreSQL, sops-nix, and Restic.
 
-## Goals
+The project treats the server as infrastructure-as-code: system configuration, service definitions, networking, secrets integration, monitoring, and backup policy are maintained in Git and reproduced through NixOS configuration.
 
-- Declarative NixOS infrastructure
-- Reproducible system configuration
-- Docker and Docker Compose for containerized applications
-- Declarative networking and storage
-- Automated backups and monitoring
-- Version-controlled infrastructure
-- Secure secret management
+## Technical Highlights
 
-## Host
+This project focuses on infrastructure engineering rather than simply hosting applications.
 
-| Host | Hardware | Role |
-|------|----------|------|
-| `homelab` | Intel Core i5-10600K / 32 GB RAM | Self-hosted services |
+* **Declarative infrastructure** — The complete host configuration is defined in NixOS modules and managed through a flake, making system state reproducible, reviewable, and version-controlled.
+* **Service orchestration with systemd** — Application lifecycle, ordering, dependencies, scheduled jobs, persistent mounts, and failure handling are expressed through native systemd units rather than ad-hoc shell orchestration.
+* **Database-aware backups** — Stateful applications such as Nextcloud and Immich use PostgreSQL custom-format dumps captured alongside their persistent application data, providing a consistent recovery boundary.
+* **Automated backup lifecycle** — Restic backups are scheduled and ordered declaratively, with service quiescing, cleanup, retention, pruning, repository integrity checks, and failure notifications handled automatically.
+* **Restore validation** — Backups are validated from real Restic snapshots, including database structure checks and byte-level filesystem restoration tests, rather than treating a successful backup command as proof of recoverability.
+* **Encrypted secret management** — sops-nix keeps credentials and API tokens encrypted in Git while exposing them to services only through controlled runtime secret files and generated environment configuration.
+* **Layered monitoring** — Beszel, Uptime Kuma, custom storage-health checks, and failure notifications provide complementary views of host health, service availability, filesystem capacity, and operational failures.
+* **Internal and external service isolation** — Caddy provides reverse-proxy and TLS termination, with separate public and LAN-only service exposure and dnsmasq providing local service discovery.
+* **Infrastructure testing** — Declarative assertions and NixOS VM tests verify service configuration, dependencies, storage, networking, secrets, monitoring, and backup invariants before production activation.
+* **Explicit state boundaries** — Declarative configuration is kept separate from mutable application state, allowing services to be rebuilt or reconfigured without treating persistent data as disposable.
 
-## Status
 
-The configuration is currently in the **development and characterization** phase.
+## Highlights
 
-The production homelab currently runs Debian. This repository is being developed
-and validated independently before the migration to NixOS.
+* **NixOS 26.05** for declarative system and service management
+* **Nix flakes** for reproducible configuration and pinned dependencies
+* **systemd** for service lifecycle, scheduling, dependencies, and failure handling
+* **Caddy** for public reverse proxying and internal TLS
+* **dnsmasq** for LAN DNS and DHCP
+* **PostgreSQL 17** for stateful applications
+* **sops-nix** for encrypted secrets and runtime secret deployment
+* **Restic** for application backups, retention, pruning, and integrity checks
+* **Declarative monitoring** for storage, services, and system health
+* **Automated configuration tests** plus NixOS VM validation
 
-### Current state
+## Architecture
 
-The NixOS configuration currently represents the major components of the
-existing homelab, including:
+```text
+                         Internet
+                            │
+                            ▼
+                         Caddy
+                    ┌───────┴────────┐
+                    │                │
+               Public TLS       Internal TLS
+                    │                │
+                    ▼                ▼
+              Public services    LAN services
+                    │                │
+                    └───────┬────────┘
+                            │
+                       NixOS host
+                            │
+          ┌─────────────────┼──────────────────┐
+          │                 │                  │
+      Native services    PostgreSQL       systemd timers
+          │                 │                  │
+          └─────────────────┼──────────────────┘
+                            │
+                       Persistent data
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+         RAID storage                Backup storage
+              │                           │
+              │                    Restic repository
+              │                           │
+              └───────────────────────────┘
+```
 
-- Networking and static addressing
-- dnsmasq DHCP/DNS
-- Existing RAID and backup storage
-- User and group identities
-- Docker and Docker Compose
-- Caddy reverse proxy
-- Jellyfin with Intel hardware acceleration
-- Sonarr, Radarr, Prowlarr, and qBittorrent
-- Seerr
-- Minecraft
-- SOPS-based secret management
-- Monitoring and notification services
-- Application backups
-- SMART disk monitoring
-- Compatibility support for prebuilt Linux applications
+Application services are managed as native NixOS services where practical. Persistent application state remains separate from the declarative configuration so that service upgrades and configuration rebuilds do not implicitly replace application data.
 
-Configuration regression tests are organized by component under `tests/`.
-The repository also uses GitHub Actions to run `nix flake check` and build the
-NixOS system configuration.
+## Services
 
-### Migration boundary
+| Service     | Role                                   | Management |
+| ----------- | -------------------------------------- | ---------- |
+| Caddy       | Reverse proxy and TLS termination      | NixOS      |
+| dnsmasq     | LAN DNS and DHCP                       | NixOS      |
+| PostgreSQL  | Database backend                       | NixOS      |
+| Nextcloud   | File synchronization and collaboration | NixOS      |
+| Immich      | Photo and video management             | NixOS      |
+| Jellyfin    | Media server                           | NixOS      |
+| Sonarr      | TV library management                  | NixOS      |
+| Radarr      | Movie library management               | NixOS      |
+| Prowlarr    | Indexer management                     | NixOS      |
+| qBittorrent | Download client                        | NixOS      |
+| Seerr       | Media request management               | NixOS      |
+| Minecraft   | Game server                            | NixOS      |
+| Jenkins     | CI/CD server                           | NixOS      |
+| Beszel      | Host monitoring                        | NixOS      |
+| ntfy        | Notification service                   | NixOS      |
+| Uptime Kuma | Service availability monitoring        | NixOS      |
+| Homepage    | Service dashboard                      | NixOS      |
+| Cockpit     | Host administration                    | NixOS      |
 
-The production Debian system has **not been replaced or modified as part of
-this development work**.
+## Configuration structure
 
-The current workflow is:
+```text
+.
+├── flake.nix
+├── flake.lock
+├── hosts/
+│   └── homelab/
+│       ├── default.nix
+│       ├── hardware-configuration.nix
+│       └── users.nix
+├── modules/
+│   ├── backups.nix
+│   ├── networking.nix
+│   ├── storage.nix
+│   ├── sops.nix
+│   ├── monitoring.nix
+│   ├── caddy.nix
+│   ├── dnsmasq.nix
+│   └── service modules...
+├── scripts/
+│   └── operational health and notification scripts
+├── secrets/
+│   └── homelab.yaml
+├── tests/
+│   └── declarative and VM-level validation
+└── docs/
+    ├── architecture.md
+    └── backup-and-restore.md
+```
 
-1. Inspect the existing Debian configuration.
-2. Represent the behavior declaratively in NixOS.
-3. Characterize existing behavior with configuration tests.
-4. Validate with `nix flake check`.
-5. Build the complete NixOS system configuration.
-6. Add NixOS VM tests where practical.
-7. Perform hardware-specific validation.
-8. Prepare and execute the production migration only after the configuration
-   has been sufficiently validated.
+The configuration is organized around composable NixOS modules rather than a single monolithic host definition.
 
-Existing application data, databases, storage, and deployment state are treated
-as migration assets rather than disposable state. The migration should preserve
-them rather than intentionally recreating application environments.
+## Secrets
+
+Secrets are stored in an encrypted SOPS file and rendered into the system at activation/runtime as required by individual services.
+
+The repository contains encrypted secret material, not plaintext credentials.
+
+Applications consume secrets through declarative NixOS configuration rather than checked-in `.env` files.
+
+## Backup design
+
+Application backups are implemented as declarative systemd + Restic jobs.
+
+The backup system provides:
+
+* application-specific backup scopes
+* PostgreSQL dumps for database-backed applications
+* consistent filesystem snapshots
+* service stop/start handling where required
+* sequential backup ordering
+* retention and pruning
+* repository integrity checks
+* failure notifications through ntfy
+
+The Restic repository is stored on dedicated backup storage rather than the primary application volume.
+
+Detailed procedures and backup scopes are documented in [`docs/backup-and-restore.md`](docs/backup-and-restore.md).
+
+## Validation
+
+Configuration changes are validated before activation:
+
+```bash
+nix flake check
+sudo nixos-rebuild build --flake ~/Projects/homelab#homelab
+```
+
+The project contains declarative configuration assertions and NixOS VM tests for important invariants such as:
+
+* enabled services
+* service dependencies
+* storage configuration
+* DNS configuration
+* secret wiring
+* backup configuration
+* monitoring
+* removal of obsolete service definitions
+
+The production configuration is then activated with:
+
+```bash
+sudo nixos-rebuild switch --flake ~/Projects/homelab#homelab
+```
+
+## Design principles
+
+### Declarative infrastructure
+
+Configuration belongs in Git wherever practical. The desired server state should be represented by Nix rather than by undocumented manual changes.
+
+### Explicit dependencies
+
+Systemd dependencies, persistent storage requirements, service ordering, backup ordering, and secret relationships are declared rather than inferred from startup timing.
+
+### Recoverability
+
+Backups are treated as an operational feature rather than an afterthought. Database dumps and application state are captured together where consistency requires it, and restore paths are tested against real Restic snapshots.
+
+### Minimal privilege
+
+Services use dedicated users where supported by their NixOS modules, while secrets and administrative operations remain restricted to the system components that require them.
+
+### Test before activation
+
+Configuration changes are validated with the Nix test suite and a build before being activated on the host.
+
+## Documentation
+
+* [Architecture](docs/architecture.md)
+* [Backup and Restore](docs/backup-and-restore.md)

@@ -42,6 +42,11 @@ let
     (helpers.assertPathExists "homelab-storage-health script" ../scripts/homelab-storage-health)
     (helpers.assertPathExists "homelab-storage-ntfy script" ../scripts/homelab-storage-ntfy)
 
+    # Documentation
+    (helpers.assertPathExists "README" ../README.md)
+    (helpers.assertPathExists "architecture documentation" ../docs/architecture.md)
+    (helpers.assertPathExists "backup documentation" ../docs/backup-and-restore.md)
+
     # State version
     (helpers.assertEqual
       "NixOS state version"
