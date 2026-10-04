@@ -21,7 +21,6 @@
     ../../modules/seerr.nix
     ../../modules/minecraft.nix
     ../../modules/sops.nix
-    ../../modules/compatibility.nix
     ../../modules/scripts.nix
     ../../modules/monitoring.nix
     ../../modules/backups.nix

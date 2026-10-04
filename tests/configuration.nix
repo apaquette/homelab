@@ -18,7 +18,6 @@ let
     (import ./monitoring.nix { inherit config helpers; })
     (import ./backups.nix { inherit config lib pkgs helpers; })
     (import ./smartd.nix { inherit config helpers; })
-    (import ./compatibility.nix { inherit config pkgs helpers; })
     (import ./scripts.nix { inherit config helpers; })
     (import ./hardware.nix { inherit config helpers; })
     (import ./invariants.nix { inherit config helpers; })
@@ -44,12 +43,6 @@ let
     (helpers.assertPathExists "homelab-disk-health script" ../scripts/homelab-disk-health)
     (helpers.assertPathExists "homelab-storage-health script" ../scripts/homelab-storage-health)
     (helpers.assertPathExists "homelab-storage-ntfy script" ../scripts/homelab-storage-ntfy)
-
-    # Compatibility
-    (helpers.assertEqual
-      "nix-ld enabled"
-      true
-      config.programs.nix-ld.enable)
 
     # State version
     (helpers.assertEqual

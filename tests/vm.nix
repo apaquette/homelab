@@ -6,7 +6,6 @@ pkgs.testers.nixosTest {
   nodes.machine = {
     imports = [
       ../modules/docker.nix
-      ../modules/compatibility.nix
       ../modules/scripts.nix
       ../modules/monitoring.nix
     ];
@@ -45,9 +44,6 @@ pkgs.testers.nixosTest {
     # Docker should be operational.
     machine.wait_for_unit("docker.service")
     machine.succeed("docker info")
-
-    # Verify the compatibility layer is enabled at runtime.
-    machine.succeed("test -e /run/current-system/sw/bin/ld.so")
 
     # Verify declaratively installed homelab scripts are present.
     machine.succeed("test -x /etc/homelab/scripts/homelab-disk-health")
