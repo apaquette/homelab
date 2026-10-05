@@ -1,6 +1,6 @@
-# Homelab Infrastructure
+# NixOS Server Infrastructure
 
-Declarative infrastructure for a self-hosted homelab, built around NixOS, systemd, Caddy, PostgreSQL, sops-nix, and Restic.
+Declarative infrastructure for a self-hosted server, built around NixOS, systemd, Caddy, PostgreSQL, sops-nix, and Restic.
 
 The project treats the server as infrastructure-as-code: system configuration, service definitions, networking, secrets integration, monitoring, and backup policy are maintained in Git and reproduced through NixOS configuration.
 

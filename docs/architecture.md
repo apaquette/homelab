@@ -1,8 +1,8 @@
-# Homelab Architecture
+# NixOS Server Architecture
 
 ## Overview
 
-The homelab is implemented as a declarative NixOS system. Hardware, networking, services, persistent storage, secrets integration, monitoring, and backup policy are represented through Nix modules and systemd units.
+The server is implemented as a declarative NixOS system. Hardware, networking, services, persistent storage, secrets integration, monitoring, and backup policy are represented through Nix modules and systemd units.
 
 The architecture separates three concerns:
 
@@ -43,7 +43,7 @@ This separation allows the operating environment to remain reproducible without 
 
 ## Networking
 
-The host provides the primary LAN infrastructure used by the homelab.
+The host provides the primary LAN infrastructure used by the server.
 
 ### dnsmasq
 
@@ -52,7 +52,7 @@ dnsmasq provides:
 * DHCP
 * LAN DNS
 * local service records
-* service discovery through the homelab domain
+* service discovery through the configured domain
 
 Internal service names resolve to the host on the local network, while Caddy handles the corresponding HTTP/TLS routing.
 

@@ -1,6 +1,6 @@
 # Roadmap
 
-This document describes planned improvements beyond the completed v1.0 infrastructure baseline.
+This document describes planned improvements to the NixOS server infrastructure beyond the completed v1.0 infrastructure baseline.
 
 The v1.0 milestone established the production foundation: declarative NixOS infrastructure, native service management, encrypted secrets, automated application backups, monitoring, and infrastructure tests.
 
@@ -151,7 +151,7 @@ Move host-specific configuration out of reusable modules and into host definitio
 
 * Move host-specific network configuration into `hosts/<hostname>`.
 * Move host-specific storage locations into `hosts/<hostname>`.
-* Introduce typed `homelab.*` module options for environment-specific configuration.
+* Introduce typed `server.*` module options for environment-specific configuration.
 * Ensure reusable modules consume declared configuration interfaces rather than hardcoded host assumptions.
 * Remove hardcoded LAN addresses from Caddy and other reusable modules.
 * Represent service connectivity through service endpoints rather than physical host addresses wherever practical.
@@ -192,9 +192,9 @@ Reusable modules should not need to know which physical or virtual host they are
 Introduce focused module options such as:
 
 ```nix
-homelab.network.*
-homelab.storage.*
-homelab.services.*
+server.network.*
+server.storage.*
+server.services.*
 ```
 
 rather than relying on arbitrary attributes or a single large configuration object.
@@ -202,10 +202,9 @@ rather than relying on arbitrary attributes or a single large configuration obje
 For example, a host could provide:
 
 ```nix
-homelab.network.lanAddress = "192.168.2.20";
-
-homelab.storage.dataRoot = "/mnt/myraid";
-homelab.storage.backupRoot = "/mnt/backup";
+server.network.lanAddress = "192.168.2.20";
+server.storage.dataRoot = "/mnt/myraid";
+server.storage.backupRoot = "/mnt/backup";
 ```
 
 A service module would then consume those values without embedding the physical host's layout in its implementation.
@@ -235,7 +234,7 @@ Where a genuinely configurable endpoint is required, represent it as a service i
 Conceptually:
 
 ```nix
-homelab.services.jellyfin.endpoint
+server.services.jellyfin.endpoint
 ```
 
 rather than having Caddy independently encode Jellyfin's address and port.
@@ -283,7 +282,7 @@ The architectural refactor is considered successful when:
 
 Add a synthetic second host to the test suite before introducing a real second server.
 
-The test configuration should intentionally differ from `homelab` in values such as:
+The test configuration should intentionally differ from `homelab` host in values such as:
 
 ```text
 LAN address
@@ -526,7 +525,7 @@ Examples:
 * DNS
 * selected application services
 
-This should be introduced selectively rather than turning a single-host homelab into a distributed system without a concrete reliability benefit.
+This should be introduced selectively rather than turning a single-host server into a distributed system without a concrete reliability benefit.
 
 ---
 
