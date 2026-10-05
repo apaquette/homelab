@@ -106,4 +106,28 @@ in
       }
     ];
   };
+
+  systemd.services.nextcloud-data-ownership = {
+    description = "Normalize Nextcloud data directory ownership";
+
+    after = [ "mnt-myraid.mount" ];
+    requires = [ "mnt-myraid.mount" ];
+
+    before = [
+      "nextcloud-setup.service"
+      "phpfpm-nextcloud.service"
+    ];
+
+    requiredBy = [
+      "nextcloud-setup.service"
+      "phpfpm-nextcloud.service"
+    ];
+
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart =
+        "${pkgs.coreutils}/bin/chown -R nextcloud:nextcloud /mnt/myraid/Nextcloud";
+      RemainAfterExit = true;
+    };
+  };
 }

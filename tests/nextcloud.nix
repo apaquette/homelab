@@ -213,4 +213,18 @@ in
     assertion = !(config.systemd.services ? "nextcloud-compose");
     message = "The old nextcloud-compose systemd service must be removed.";
   }
+  (helpers.assertEqual
+    "Nextcloud data directory ownership service"
+    true
+    (config.systemd.services ? "nextcloud-data-ownership"))
+
+  (helpers.assertEqual
+    "Nextcloud data ownership command"
+    "${pkgs.coreutils}/bin/chown -R nextcloud:nextcloud /mnt/myraid/Nextcloud"
+    config.systemd.services.nextcloud-data-ownership.serviceConfig.ExecStart)
+
+  (helpers.assertContains
+    "Nextcloud data ownership requires RAID mount"
+    "mnt-myraid.mount"
+    config.systemd.services.nextcloud-data-ownership.requires)
 ]
